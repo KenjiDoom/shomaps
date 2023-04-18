@@ -16,7 +16,8 @@ class Shomap(customtkinter.CTk):
         pw_windows.pack(fill='both', expand=False)
 
         # Entry box needed
-        IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address",placeholder_text_color=('black'), height=40, width=1000).place(x=700, y=775, anchor='center')
+        IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address",placeholder_text_color=('black'), height=40, width=900).place(x=700, y=775, anchor='center')
+        search_button = customtkinter.CTkButton(master=self, text='Search').place(x=1250, y=775, anchor='center') # Don't forget add the command
 
 
 app = Shomap()
