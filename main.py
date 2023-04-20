@@ -6,6 +6,7 @@ import shodan
 # Add your key here
 api = shodan.Shodan('')
 
+
 class Shomap(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -28,8 +29,11 @@ class Shomap(customtkinter.CTk):
         search_button = customtkinter.CTkButton(master=self, text='Search', command=self.shodan_search).place(x=1250, y=775, anchor='center') # Don't forget add the command
         
                                                         # Change this to frame
-        map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
-        map_widget.grid(row=0, column=0, sticky="nsew") # This method might not work for our output characters
+        self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
+        self.map_widget.set_position(64.1342, -21.89541) # Pass coorindates Variables here
+        self.map_widget.set_marker(64.1342, -21.89541, text='234.432.242.534') # pass Variables into here
+        self.map_widget.grid(row=0, column=0, sticky="nsew") # This method might not work for our output characters
+        
         self.panel2_maps.grid_rowconfigure(0, weight=1)
         self.panel2_maps.grid_columnconfigure(0, weight=1)
 
@@ -47,16 +51,15 @@ class Shomap(customtkinter.CTk):
             asn.append(items['asn'])
             coordinates.append(items['location']['latitude'])
             coordinates2.append(items['location']['longitude'])
-
+        
         for index, (a, b, c, d, e, f, g, h) in enumerate(zip(ip, banner, port, city, domains, asn, coordinates, coordinates2)):
-                                                # Change this to frame
             #results = customtkinter.CTkLabel(master=self.frame_results, text=(str(a), str(b), str(c), str(d), str(e), str(f), str(g), str(h))).place(x=10)
             IP_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(a))).place(x=10, y=20)
-            BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(b))).place(x=10, y=50)
-            PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(c))).place(x=10, y=150)
-            CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(d))).place(x=10, y=200)
-            DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(e))).place(x=10, y=250)
-            ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(f))).place(x=10, y=300)
+           # BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(b))).place(x=10, y=50)
+            #PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(c))).place(x=10, y=150)
+            #CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(d))).place(x=10, y=200)
+            #DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(e))).place(x=10, y=250)
+            #ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(f))).place(x=10, y=300)
             COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(g))).place(x=10, y=350)
             COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(h))).place(x=70, y=350)
 
