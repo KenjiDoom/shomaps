@@ -6,7 +6,6 @@ import shodan
 # Add your key here
 api = shodan.Shodan('')
 
-
 class Shomap(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -53,7 +52,13 @@ class Shomap(customtkinter.CTk):
                                                 # Change this to frame
             #results = customtkinter.CTkLabel(master=self.frame_results, text=(str(a), str(b), str(c), str(d), str(e), str(f), str(g), str(h))).place(x=10)
             IP_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(a))).place(x=10, y=20)
-
+            BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(b))).place(x=10, y=50)
+            PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(c))).place(x=10, y=150)
+            CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(d))).place(x=10, y=200)
+            DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(e))).place(x=10, y=250)
+            ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(f))).place(x=10, y=300)
+            COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(g))).place(x=10, y=350)
+            COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(h))).place(x=70, y=350)
 
 
 app = Shomap()
