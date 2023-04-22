@@ -26,16 +26,7 @@ class Shomap(customtkinter.CTk):
 
         # Entry box needed
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=900).place(x=700, y=775, anchor='center')
-        search_button = customtkinter.CTkButton(master=self, text='Search', command=self.shodan_search).place(x=1250, y=775, anchor='center') # Don't forget add the command
-        
-                                                        # Change this to frame
-        self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
-        self.map_widget.set_position(64.1342, -21.89541) # Pass coorindates Variables here
-        self.map_widget.set_marker(64.1342, -21.89541, text='234.432.242.534') # pass Variables into here
-        self.map_widget.grid(row=0, column=0, sticky="nsew") # This method might not work for our output characters
-        
-        self.panel2_maps.grid_rowconfigure(0, weight=1)
-        self.panel2_maps.grid_columnconfigure(0, weight=1)
+        search_button = customtkinter.CTkButton(master=self, text='Search', command=self.shodan_search).place(x=1250, y=775, anchor='center')
 
     def shodan_search(self):
         # IP fixed for now
@@ -63,6 +54,15 @@ class Shomap(customtkinter.CTk):
             COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(g))).place(x=10, y=350)
             COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(h))).place(x=70, y=350)
 
+    def display_map(self):                                           
+        self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
+        self.map_widget.set_position(23.70944, 120.54333) # Pass coorindates Variables here
+        self.map_widget.set_marker(23.70944, 120.54333, text='223.200.185.121') # pass Variables into here
+        self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22) # Using google servers
+        self.map_widget.grid(row=0, column=0, sticky="nsew") # This method might not work for our output characters
+        
+        self.panel2_maps.grid_rowconfigure(0, weight=1)
+        self.panel2_maps.grid_columnconfigure(0, weight=1)
 
 app = Shomap()
 app.configure(fg_color='grey')
