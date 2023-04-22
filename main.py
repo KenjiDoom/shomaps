@@ -25,12 +25,11 @@ class Shomap(customtkinter.CTk):
         pw_windows.pack(fill='both', expand=True)
 
         # Entry box needed
-        IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=900).place(x=700, y=775, anchor='center')
-        search_button = customtkinter.CTkButton(master=self, text='Search', command=self.shodan_search).place(x=1250, y=775, anchor='center')
-
-    def shodan_search(self):
-        # IP fixed for now
-        IP = ''
+        IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=900)
+        IP_Entry.place(x=700, y=775, anchor='center')
+        search_button = customtkinter.CTkButton(master=self, text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map()]).place(x=1250, y=775, anchor='center') 
+    
+    def shodan_search(self, IP):
         host = api.host(IP)
         ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
         for items in host['data']:
