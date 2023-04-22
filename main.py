@@ -27,7 +27,7 @@ class Shomap(customtkinter.CTk):
         # Entry box needed
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=900)
         IP_Entry.place(x=700, y=775, anchor='center')
-        search_button = customtkinter.CTkButton(master=self, text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map()]).place(x=1250, y=775, anchor='center') 
+        search_button = customtkinter.CTkButton(master=self, text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())]).place(x=1250, y=775, anchor='center') 
     
     def shodan_search(self, IP):
         host = api.host(IP)
@@ -53,15 +53,22 @@ class Shomap(customtkinter.CTk):
             COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(g))).place(x=10, y=350)
             COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(h))).place(x=70, y=350)
 
-    def display_map(self):                                           
-        self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
-        self.map_widget.set_position(23.70944, 120.54333) # Pass coorindates Variables here
-        self.map_widget.set_marker(23.70944, 120.54333, text='223.200.185.121') # pass Variables into here
-        self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22) # Using google servers
-        self.map_widget.grid(row=0, column=0, sticky="nsew") # This method might not work for our output characters
-        
-        self.panel2_maps.grid_rowconfigure(0, weight=1)
-        self.panel2_maps.grid_columnconfigure(0, weight=1)
+    def display_map(self, IP):
+        host = api.host(IP)
+        self.coordinates, self.coordinates2 = [],[]
+        for items in host['data']:
+            self.coordinates.append(items['location']['latitude'])
+            self.coordinates2.append(items['location']['longitude'])
+            print(self.coordinates, self.coordinates2)
+        for index, (a, b) in enumerate(zip(self.coordinates, self.coordinates2)):
+            self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
+            self.map_widget.set_position(a, b) # Pass coorindates Variables here
+            self.map_widget.set_marker(a, b, text=str(IP)) # pass Variables into here
+            self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22) # Using google servers
+            self.map_widget.grid(row=0, column=0, sticky="nsew") # This method might not work for our output characters
+
+            self.panel2_maps.grid_rowconfigure(0, weight=1)
+            self.panel2_maps.grid_columnconfigure(0, weight=1)
 
 app = Shomap()
 app.configure(fg_color='grey')
