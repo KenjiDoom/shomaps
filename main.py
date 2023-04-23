@@ -25,7 +25,7 @@ class Shomap(customtkinter.CTk):
         IP_Entry.place(x=700, y=775, anchor='center')
         search_button = customtkinter.CTkButton(master=self, text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())]).place(x=1250, y=775, anchor='center') 
         
-        self.icon_image = PhotoImage(file='/home/kenji/Documents/shomaps/assets/shodan-icon.png')
+        self.icon_image = PhotoImage(file='assets/shodan-icon.png')
         self.iconphoto(False, self.icon_image)
     
     def shodan_search(self, IP):
