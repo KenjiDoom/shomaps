@@ -4,7 +4,6 @@ from tkinter import *
 
 api = shodan.Shodan('')
 
-
 class Shomap(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -19,15 +18,23 @@ class Shomap(customtkinter.CTk):
         pw_windows.add(self.panel2_maps, weight=50)
         pw_windows.pack(fill='both', expand=True)
         
-        IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=900)
+        IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=500)
         IP_Entry.place(x=700, y=775, anchor='center')
                     
         search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
-        search_button.place(x=1250, y=775, anchor='center')
+        search_button.place(x=1050, y=775, anchor='center')
         
+        # Nmap scan will open a whole new window that gives the user the option to perform a live namp scan on the target
+        # Whole new interface
+        nmap_scan = customtkinter.CTkButton(master=self.Panel1_results, text='Perform Nmap Scan', command=self.nmap_scan('IP_HERE'))
+        nmap_scan.place(x=150, y=720)
+
+        # More results will open a window with complete shodan information about the target
+        more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=self.more_data('IP_HERE'))
+        more_results.place(x=300, y=720)
+
         self.icon_image = PhotoImage(file='assets/shodan-icon.png')
         self.iconphoto(False, self.icon_image)
-
 
     def shodan_search(self, IP):
         fpack = ("MS Serif", 20)
@@ -44,16 +51,14 @@ class Shomap(customtkinter.CTk):
             coordinates2.append(items['location']['longitude'])
         
         for index, (a, b, c, d, e, f, g, h) in enumerate(zip(ip, banner, port, city, domains, asn, coordinates, coordinates2)):
-            IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='white', text=('IP Address: ' + str(a))).place(x=10, y=20)
-           
-            #BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(b))).place(x=10, y=50)
-          
+            IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='white', text=('IP Address: ' + str(a))).place(x=10, y=20)     
             PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Port numbers: ' + str(c))).place(x=10, y=60)
             CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('City: ' + str(d))).place(x=10, y=100)
             DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Domain: ' + str(e))).place(x=10, y=150)
             ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('ASN: ' + str(f))).place(x=10, y=200)
             COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('coordinates: ' + str(g))).place(x=10, y=250)
             COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=(str(h))).place(x=215, y=250)
+            BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text=(str(b))).place(x=10, y=350)
 
     def display_map(self, IP):
         host = api.host(IP)
@@ -71,6 +76,12 @@ class Shomap(customtkinter.CTk):
 
             self.panel2_maps.grid_rowconfigure(0, weight=1)
             self.panel2_maps.grid_columnconfigure(0, weight=1)
+
+    def nmap_scan(self, IP):
+        print(IP)
+
+    def more_data(self, IP):
+        print(IP)
 
 app = Shomap()
 app.configure(fg_color='grey')
