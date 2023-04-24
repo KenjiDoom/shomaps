@@ -1,8 +1,6 @@
+import tkintermapview, customtkinter, shodan
 from tkinter.ttk import *
 from tkinter import *
-import customtkinter
-import tkintermapview
-import shodan
 
 api = shodan.Shodan('')
 
@@ -12,10 +10,10 @@ class Shomap(customtkinter.CTk):
         super().__init__()
         self.geometry("1400x800")
         self.title("Shomaps")
-
+        fpack = ("MS Serif", 20)
         pw_windows = Panedwindow(self, orient='horizontal')
-        self.Panel1_results = LabelFrame(pw_windows, text="General Information")
-        self.panel2_maps = LabelFrame(pw_windows, text="Shodan Maps", relief='solid', borderwidth=1)
+        self.Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='slate gray')
+        self.panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='slate gray')
         
         pw_windows.add(self.Panel1_results, weight=50)
         pw_windows.add(self.panel2_maps, weight=50)
@@ -23,12 +21,16 @@ class Shomap(customtkinter.CTk):
         
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=900)
         IP_Entry.place(x=700, y=775, anchor='center')
-        search_button = customtkinter.CTkButton(master=self, text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())]).place(x=1250, y=775, anchor='center') 
+                    
+        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
+        search_button.place(x=1250, y=775, anchor='center')
         
         self.icon_image = PhotoImage(file='assets/shodan-icon.png')
         self.iconphoto(False, self.icon_image)
-    
+
+
     def shodan_search(self, IP):
+        fpack = ("MS Serif", 20)
         host = api.host(IP)
         ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
         for items in host['data']:
@@ -42,14 +44,16 @@ class Shomap(customtkinter.CTk):
             coordinates2.append(items['location']['longitude'])
         
         for index, (a, b, c, d, e, f, g, h) in enumerate(zip(ip, banner, port, city, domains, asn, coordinates, coordinates2)):
-            IP_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(a))).place(x=10, y=20)
-            BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(b))).place(x=10, y=50)
-            PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(c))).place(x=10, y=150)
-            CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(d))).place(x=10, y=200)
-            DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(e))).place(x=10, y=250)
-            ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(f))).place(x=10, y=300)
-            COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(g))).place(x=10, y=350)
-            COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(h))).place(x=70, y=350)
+            IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='white', text=('IP Address: ' + str(a))).place(x=10, y=20)
+           
+            #BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, text=(str(b))).place(x=10, y=50)
+          
+            PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Port numbers: ' + str(c))).place(x=10, y=60)
+            CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('City: ' + str(d))).place(x=10, y=100)
+            DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Domain: ' + str(e))).place(x=10, y=150)
+            ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('ASN: ' + str(f))).place(x=10, y=200)
+            COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('coordinates: ' + str(g))).place(x=10, y=250)
+            COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=(str(h))).place(x=215, y=250)
 
     def display_map(self, IP):
         host = api.host(IP)
