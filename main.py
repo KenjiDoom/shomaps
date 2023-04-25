@@ -1,4 +1,4 @@
-import tkintermapview, customtkinter, shodan
+import tkintermapview, customtkinter, shodan, nmap3
 from tkinter.ttk import *
 from tkinter import *
 
@@ -23,10 +23,9 @@ class Shomap(customtkinter.CTk):
                     
         search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
         search_button.place(x=1050, y=775, anchor='center')
-        
-        # Nmap scan will open a whole new window that gives the user the option to perform a live namp scan on the target
-        # Whole new interface
-        nmap_scan = customtkinter.CTkButton(master=self.Panel1_results, text='Perform Nmap Scan', command=self.nmap_scan('IP_HERE'))
+
+        # This is auto clicked when app starts, why?
+        nmap_scan = customtkinter.CTkButton(master=self.Panel1_results, text='Perform Nmap Scan', command=self.nmap_scan('45.33.49.119'))
         nmap_scan.place(x=150, y=720)
 
         # More results will open a window with complete shodan information about the target
@@ -78,11 +77,14 @@ class Shomap(customtkinter.CTk):
             self.panel2_maps.grid_columnconfigure(0, weight=1)
 
     def nmap_scan(self, IP):
-        print("Opening new window")
+        nmap = nmap3.Nmap()
+        results = nmap.scan_top_ports(str(IP))
+        print(results)
         self.new = Toplevel(self)
         self.new.title("Nmap Scan")
-        self.new.geometry('300x300')
-        customtkinter.CTkLabel(master=self.new, text_color='Black', text='Scan').pack()
+        self.new.geometry('400x400')
+        customtkinter.CTkLabel(master=self.new, text_color='Black', text=str(results)).pack()
+        self.new.resizable(False, False)
 
 
     def more_data(self, IP):
