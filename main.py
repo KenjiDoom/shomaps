@@ -70,7 +70,7 @@ class Shomap(customtkinter.CTk):
         for index, (a, b) in enumerate(zip(self.coordinates, self.coordinates2)):
             self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
             self.map_widget.set_position(a, b)
-            self.map_widget.set_marker(a, b, text=str(IP))
+            self.map_widget.set_marker(a, b, text=str(IP)) # Using google servers
             self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
             self.map_widget.grid(row=0, column=0, sticky="nsew") 
 
@@ -78,7 +78,12 @@ class Shomap(customtkinter.CTk):
             self.panel2_maps.grid_columnconfigure(0, weight=1)
 
     def nmap_scan(self, IP):
-        print(IP)
+        print("Opening new window")
+        self.new = Toplevel(self)
+        self.new.title("Nmap Scan")
+        self.new.geometry('300x300')
+        customtkinter.CTkLabel(master=self.new, text_color='Black', text='Scan').pack()
+
 
     def more_data(self, IP):
         print(IP)
