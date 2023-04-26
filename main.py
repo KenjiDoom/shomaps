@@ -88,7 +88,7 @@ class Shomap(customtkinter.CTk):
         customtkinter.CTkCheckBox(self.new, text='Save Results').pack()
         customtkinter.CTkCheckBox(self.new, text='Stealth Scan').pack()
         customtkinter.CTkCheckBox(self.new, text='UDP Scan').pack()
-        customtkinter.CTkCehckBox(self.new, text='Top ports').pack()
+        customtkinter.CTkCheckBox(self.new, text='Top ports').pack()
         self.new.resizable(False, False)
 
 
