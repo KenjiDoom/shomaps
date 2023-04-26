@@ -84,6 +84,11 @@ class Shomap(customtkinter.CTk):
         self.new.title("Nmap Scan")
         self.new.geometry('400x400')
         customtkinter.CTkLabel(master=self.new, text_color='Black', text=str(results)).pack()
+        customtkinter.CTkCheckBox(self.new, text='OS Dection').pack()
+        customtkinter.CTkCheckBox(self.new, text='Save Results').pack()
+        customtkinter.CTkCheckBox(self.new, text='Stealth Scan').pack()
+        customtkinter.CTkCheckBox(self.new, text='UDP Scan').pack()
+        customtkinter.CTkCehckBox(self.new, text='Top ports').pack()
         self.new.resizable(False, False)
 
 
