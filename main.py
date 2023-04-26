@@ -1,4 +1,4 @@
-import tkintermapview, customtkinter, shodan, nmap3
+import tkintermapview, customtkinter, shodan, nmap3, emojis
 from tkinter.ttk import *
 from tkinter import *
 
@@ -11,8 +11,8 @@ class Shomap(customtkinter.CTk):
         self.title("Shomaps")
         fpack = ("MS Serif", 20)
         pw_windows = Panedwindow(self, orient='horizontal')
-        self.Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='slate gray')
-        self.panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='slate gray')
+        self.Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='white')
+        self.panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='white')
         
         pw_windows.add(self.Panel1_results, weight=50)
         pw_windows.add(self.panel2_maps, weight=50)
@@ -77,19 +77,22 @@ class Shomap(customtkinter.CTk):
             self.panel2_maps.grid_columnconfigure(0, weight=1)
 
     def nmap_scan(self, IP):
-        nmap = nmap3.Nmap()
-        results = nmap.scan_top_ports(str(IP))
-        print(results)
-        self.new = Toplevel(self)
-        self.new.title("Nmap Scan")
-        self.new.geometry('400x400')
-        customtkinter.CTkLabel(master=self.new, text_color='Black', text=str(results)).pack()
-        customtkinter.CTkCheckBox(self.new, text='OS Dection').pack()
-        customtkinter.CTkCheckBox(self.new, text='Save Results').pack()
-        customtkinter.CTkCheckBox(self.new, text='Stealth Scan').pack()
-        customtkinter.CTkCheckBox(self.new, text='UDP Scan').pack()
-        customtkinter.CTkCheckBox(self.new, text='Top ports').pack()
-        self.new.resizable(False, False)
+        def start_scan():
+            nmap = nmap3.Nmap()
+            results = nmap.scan_top_ports(str(IP))
+            print(results)
+
+        self.nmap_window = Toplevel(self, background='white')
+        self.nmap_window.title("Nmap Scan")
+        self.nmap_window.geometry('600x600')
+        customtkinter.CTkLabel(master=self.nmap_window, text_color='Black', text='Scan Results here').pack()
+        customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').pack()
+        customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').pack()
+        customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').pack()
+        customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').pack()
+        customtkinter.CTkCheckBox(self.nmap_window, text='Top ports').pack()
+        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Scan', command=start_scan())
+        self.nmap_window.resizable(False, False)
 
 
     def more_data(self, IP):
