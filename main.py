@@ -102,7 +102,7 @@ class Shomap(customtkinter.CTk):
         customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
 
-        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan').place(x=370, y=590)
+        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red').place(x=370, y=580)
         
         self.nmap_window.resizable(False, False)
 
