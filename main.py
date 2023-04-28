@@ -91,18 +91,18 @@ class Shomap(customtkinter.CTk):
 
         self.nmap_window = Toplevel(self, background='white')
         self.nmap_window.title("Nmap Scan")
-        self.nmap_window.geometry('600x600')
+        self.nmap_window.geometry('600x650')
 
         # Scrollable frame
-        frame = customtkinter.CTkScrollableFrame(master=self.nmap_window, width=500, height=500, fg_color='DarkGray')
+        frame = customtkinter.CTkScrollableFrame(master=self.nmap_window, width=500, height=500, fg_color='DarkGray', label_text='Scan results for ' + str(IP))
         frame.place(x=50, y=10)
         
-        customtkinter.CTkLabel(master=self.nmap_window, text_color='Black', text='Scan Results here').pack()
-        customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').pack(side='bottom')
-        customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').pack(side='bottom')
-        customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').pack(side='bottom')
-        customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').pack(side='bottom')
-        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Scan').pack(side='right')
+        customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').place(x=50, y=580)
+        customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').place(x=50, y=610)
+        customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
+        customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
+
+        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan').place(x=370, y=590)
         
         self.nmap_window.resizable(False, False)
 
