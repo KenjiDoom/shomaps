@@ -1,4 +1,5 @@
-import tkintermapview, customtkinter, shodan, nmap3, emojis
+import tkintermapview, customtkinter
+import shodan, nmap3, subprocess, json
 from tkinter.ttk import *
 from tkinter import *
 
@@ -79,8 +80,12 @@ class Shomap(customtkinter.CTk):
     def nmap_scan(self, IP):
         def start_scan():
             nmap = nmap3.Nmap()
-            results = nmap.scan_top_ports(str(IP))
-            print(results)
+            # Nmap returns in json
+            results = nmap.nmap_version_detection(str(IP))
+        
+            # Grepping data 
+            for data in results[str(IP)]['ports']:
+                print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
 
         self.nmap_window = Toplevel(self, background='white')
         self.nmap_window.title("Nmap Scan")
