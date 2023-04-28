@@ -85,17 +85,25 @@ class Shomap(customtkinter.CTk):
         
             # Grepping data 
             for data in results[str(IP)]['ports']:
-                print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
+                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
+                # print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
+                customtkinter.CTkLabel(master=self.nmap_window, text=output).pack()
 
         self.nmap_window = Toplevel(self, background='white')
         self.nmap_window.title("Nmap Scan")
         self.nmap_window.geometry('600x600')
+
+        # Scrollable frame
+        frame = customtkinter.CTkScrollableFrame(master=self.nmap_window, width=500, height=500, fg_color='DarkGray')
+        frame.place(x=50, y=10)
+        
         customtkinter.CTkLabel(master=self.nmap_window, text_color='Black', text='Scan Results here').pack()
-        customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').pack()
-        customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').pack()
-        customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').pack()
-        customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').pack()
-        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Scan', command=start_scan())
+        customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').pack(side='bottom')
+        customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').pack(side='bottom')
+        customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').pack(side='bottom')
+        customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').pack(side='bottom')
+        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Scan').pack(side='right')
+        
         self.nmap_window.resizable(False, False)
 
 
