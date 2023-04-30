@@ -23,7 +23,12 @@ class Shomap(customtkinter.CTk):
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=500)
         IP_Entry.place(x=700, y=775, anchor='center')
         
-        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
+        self.progressbar = Progressbar(self, mode="indeterminate", length=100)
+        self.progressbar.place(x=1195, y=765)
+
+        self.progressbar.config(mode='indeterminate', )
+
+        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.progressbar.start(),self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
         search_button.place(x=1050, y=775, anchor='center')
 
         # This is auto clicked when app starts, why?
@@ -65,9 +70,7 @@ class Shomap(customtkinter.CTk):
             print('You must enter your API key')
             messagebox.showwarning('API Issue', message='Invalid API!!!')  
     
-    
     def display_map(self, IP):
-        self.loading_bar = customtkinter.CTkProgressBar(self, mode="indeterminate", width=50, height=50).place(x=1195, y=765)
         host = api.host(IP)
         self.coordinates, self.coordinates2 = [],[]
         for items in host['data']:
