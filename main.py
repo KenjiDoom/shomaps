@@ -1,5 +1,6 @@
 import tkintermapview, customtkinter
 import shodan, nmap3, subprocess, json
+from tkinter import messagebox
 from tkinter.ttk import *
 from tkinter import *
 
@@ -22,8 +23,7 @@ class Shomap(customtkinter.CTk):
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=500)
         IP_Entry.place(x=700, y=775, anchor='center')
         
-        self.loading_bar = Progressbar(self, orient='horizontal', mode='indeterminate', length=200).place(x=1195, y=765)
-        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get(), loading_bar.start)])
+        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
         search_button.place(x=1050, y=775, anchor='center')
 
         # This is auto clicked when app starts, why?
@@ -38,30 +38,36 @@ class Shomap(customtkinter.CTk):
         self.iconphoto(False, self.icon_image)
 
     def shodan_search(self, IP):
-        fpack = ("MS Serif", 20)
-        host = api.host(IP)
-        ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
-        for items in host['data']:
-            ip.append(items['ip_str'])
-            banner.append(items['data'])
-            port.append(items['port'])
-            city.append(host.get('city', 'n/a'))
-            domains.append(host.get('domain', 'n/a'))
-            asn.append(items['asn'])
-            coordinates.append(items['location']['latitude'])
-            coordinates2.append(items['location']['longitude'])
-        
-        for index, (a, b, c, d, e, f, g, h) in enumerate(zip(ip, banner, port, city, domains, asn, coordinates, coordinates2)):
-            IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='white', text=('IP Address: ' + str(a))).place(x=10, y=20)     
-            PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Port numbers: ' + str(c))).place(x=10, y=60)
-            CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('City: ' + str(d))).place(x=10, y=100)
-            DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Domain: ' + str(e))).place(x=10, y=150)
-            ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('ASN: ' + str(f))).place(x=10, y=200)
-            COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('coordinates: ' + str(g))).place(x=10, y=250)
-            COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=(str(h))).place(x=215, y=250)
-            BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text=(str(b))).place(x=10, y=350)
-        
+        try:
+            fpack = ("MS Serif", 20)
+            host = api.host(IP)
+            ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
+            for items in host['data']:
+                ip.append(items['ip_str'])
+                banner.append(items['data'])
+                port.append(items['port'])
+                city.append(host.get('city', 'n/a'))
+                domains.append(host.get('domain', 'n/a'))
+                asn.append(items['asn'])
+                coordinates.append(items['location']['latitude'])
+                coordinates2.append(items['location']['longitude'])
+
+            for index, (a, b, c, d, e, f, g, h) in enumerate(zip(ip, banner, port, city, domains, asn, coordinates, coordinates2)):
+                IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='white', text=('IP Address: ' + str(a))).place(x=10, y=20)     
+                PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Port numbers: ' + str(c))).place(x=10, y=60)
+                CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('City: ' + str(d))).place(x=10, y=100)
+                DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Domain: ' + str(e))).place(x=10, y=150)
+                ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('ASN: ' + str(f))).place(x=10, y=200)
+                COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('coordinates: ' + str(g))).place(x=10, y=250)
+                COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=(str(h))).place(x=215, y=250)
+                BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text=(str(b))).place(x=10, y=350)
+        except shodan.exception.APIError:
+            print('You must enter your API key')
+            messagebox.showwarning('API Issue', message='Invalid API!!!')  
+    
+    
     def display_map(self, IP):
+        self.loading_bar = customtkinter.CTkProgressBar(self, mode="indeterminate", width=50, height=50).place(x=1195, y=765)
         host = api.host(IP)
         self.coordinates, self.coordinates2 = [],[]
         for items in host['data']:
