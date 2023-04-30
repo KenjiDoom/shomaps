@@ -21,8 +21,9 @@ class Shomap(customtkinter.CTk):
         
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=500)
         IP_Entry.place(x=700, y=775, anchor='center')
-                    
-        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
+        
+        self.loading_bar = Progressbar(self, orient='horizontal', mode='indeterminate', length=200).place(x=1195, y=765)
+        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get(), loading_bar.start)])
         search_button.place(x=1050, y=775, anchor='center')
 
         # This is auto clicked when app starts, why?
@@ -59,7 +60,7 @@ class Shomap(customtkinter.CTk):
             COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('coordinates: ' + str(g))).place(x=10, y=250)
             COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=(str(h))).place(x=215, y=250)
             BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text=(str(b))).place(x=10, y=350)
-
+        
     def display_map(self, IP):
         host = api.host(IP)
         self.coordinates, self.coordinates2 = [],[]
@@ -85,9 +86,10 @@ class Shomap(customtkinter.CTk):
         
             # Grepping data 
             for data in results[str(IP)]['ports']:
+                # This would be the output for ports and services scan
                 output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-                # print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
-                customtkinter.CTkLabel(master=self.nmap_window, text=output).pack()
+                #print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
+                customtkinter.CTkLabel(master=self.nmap_window, text=output).place(x=100, y=50)
 
         self.nmap_window = Toplevel(self, background='white')
         self.nmap_window.title("Nmap Scan")
@@ -97,12 +99,14 @@ class Shomap(customtkinter.CTk):
         frame = customtkinter.CTkScrollableFrame(master=self.nmap_window, width=500, height=500, fg_color='DarkGray', label_text='Scan results for ' + str(IP))
         frame.place(x=50, y=10)
         
+        # We need to convert these into bits which will all have the value of zero until clicked they will become 1
+        # What if we broke it down into two subsections... if the 4 way don't work
         customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').place(x=50, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').place(x=50, y=610)
         customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
 
-        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red').place(x=370, y=580)
+        #customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=start_scan()).place(x=370, y=580)
         
         self.nmap_window.resizable(False, False)
 
