@@ -25,12 +25,10 @@ class Shomap(customtkinter.CTk):
         IP_Entry.place(x=700, y=775, anchor='center')      
         
         # Multi Processing attempt
-        p1 = Process(target=self.shodan_search(str(IP_Entry.get())))
         p2 = Process(target=self.loading_bar())
         p2.start()
-        
 
-        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get()))])
+        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
         search_button.place(x=1050, y=775, anchor='center')
 
         # This is auto clicked when app starts, why?
