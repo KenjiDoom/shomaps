@@ -28,6 +28,7 @@ class Shomap(customtkinter.CTk):
 
         self.progressbar.config(mode='indeterminate', )
 
+        # The progress bar starts when the data is loading but doens't display itself moving.....
         search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.progressbar.start(),self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
         search_button.place(x=1050, y=775, anchor='center')
 
@@ -44,7 +45,7 @@ class Shomap(customtkinter.CTk):
 
     def shodan_search(self, IP):
         try:
-            fpack = ("MS Serif", 20)
+            fpack = ("MS Serif", 10)
             host = api.host(IP)
             ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
             for items in host['data']:
@@ -58,14 +59,14 @@ class Shomap(customtkinter.CTk):
                 coordinates2.append(items['location']['longitude'])
 
             for index, (a, b, c, d, e, f, g, h) in enumerate(zip(ip, banner, port, city, domains, asn, coordinates, coordinates2)):
-                IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='white', text=('IP Address: ' + str(a))).place(x=10, y=20)     
-                PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Port numbers: ' + str(c))).place(x=10, y=60)
-                CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('City: ' + str(d))).place(x=10, y=100)
-                DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('Domain: ' + str(e))).place(x=10, y=150)
-                ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('ASN: ' + str(f))).place(x=10, y=200)
-                COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=('coordinates: ' + str(g))).place(x=10, y=250)
-                COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='white', text=(str(h))).place(x=215, y=250)
-                BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text=(str(b))).place(x=10, y=350)
+                IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='black', text=('IP Address: ' + str(a))).place(x=10, y=20)     
+                PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('Port numbers: ' + str(c))).place(x=10, y=60)
+                CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('City: ' + str(d))).place(x=10, y=100)
+                DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('Domain: ' + str(e))).place(x=10, y=150)
+                ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('ASN: ' + str(f))).place(x=10, y=200)
+                COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('coordinates: ' + str(g))).place(x=10, y=250)
+                COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=(str(h))).place(x=215, y=250)
+                BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=(str(b))).place(x=10, y=350)
         except shodan.exception.APIError:
             print('You must enter your API key')
             messagebox.showwarning('API Issue', message='Invalid API!!!')  
