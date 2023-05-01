@@ -25,10 +25,10 @@ class Shomap(customtkinter.CTk):
         IP_Entry.place(x=700, y=775, anchor='center')      
         
         # Multi Processing attempt
-        p2 = Process(target=self.loading_bar())
-        p2.start()
+        #self.p2 = Process(target=self.loading_bar())
 
-        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
+        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.loading_bar(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
+
         search_button.place(x=1050, y=775, anchor='center')
 
         # This is auto clicked when app starts, why?
@@ -42,15 +42,16 @@ class Shomap(customtkinter.CTk):
         self.icon_image = PhotoImage(file='assets/shodan-icon.png')
         self.iconphoto(False, self.icon_image)
 
-    def loading_bar(self):
+    def loading_bar(self, IP):
         self.progressbar = Progressbar(self, mode="indeterminate", length=100)
         self.progressbar.place(x=1195, y=765)
-
         self.progressbar.config(mode='indeterminate')
-        self.progressbar.start(3)
+        self.progressbar.start(5)
+        
+        self.p3 = Process(target=self.shodan_search(IP))
+        self.p3.start()
 
     def shodan_search(self, IP):
-        # Can't put it into a loop because then the whole program will loop
         try:
             fpack = ("MS Serif", 15)
             host = api.host(IP)
@@ -73,27 +74,30 @@ class Shomap(customtkinter.CTk):
                 ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('ASN: ' + str(f))).place(x=10, y=200)
                 COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('coordinates: ' + str(g))).place(x=10, y=250)
                 COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=(str(h))).place(x=215, y=250)
-                BANNER_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=(str(b))).place(x=10, y=350)
         except shodan.exception.APIError:
             print('You must enter your API key')
             messagebox.showwarning('API Issue', message='Invalid API!!!')  
     
     def display_map(self, IP):
-        host = api.host(IP)
-        self.coordinates, self.coordinates2 = [],[]
-        for items in host['data']:
-            self.coordinates.append(items['location']['latitude'])
-            self.coordinates2.append(items['location']['longitude'])
-            print(self.coordinates, self.coordinates2)
-        for index, (a, b) in enumerate(zip(self.coordinates, self.coordinates2)):
-            self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
-            self.map_widget.set_position(a, b)
-            self.map_widget.set_marker(a, b, text=str(IP)) # Using google servers
-            self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
-            self.map_widget.grid(row=0, column=0, sticky="nsew") 
-
-            self.panel2_maps.grid_rowconfigure(0, weight=1)
-            self.panel2_maps.grid_columnconfigure(0, weight=1)
+        try:
+            host = api.host(IP)
+            self.coordinates, self.coordinates2 = [],[]
+            for items in host['data']:
+                self.coordinates.append(items['location']['latitude'])
+                self.coordinates2.append(items['location']['longitude'])
+                print(self.coordinates, self.coordinates2)
+            for index, (a, b) in enumerate(zip(self.coordinates, self.coordinates2)):
+                self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
+                self.map_widget.set_position(a, b)
+                self.map_widget.set_marker(a, b, text=str(IP)) # Using google servers
+                self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
+                self.map_widget.grid(row=0, column=0, sticky="nsew") 
+    
+                self.panel2_maps.grid_rowconfigure(0, weight=1)
+                self.panel2_maps.grid_columnconfigure(0, weight=1)
+        except shodan.exception.APIError:
+            print('You must enter your API key')
+            messagebox.showwarning('API Issue', message='Invalid API!!!')
 
     def nmap_scan(self, IP):
         def start_scan():
