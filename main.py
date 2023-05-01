@@ -1,5 +1,6 @@
 import tkintermapview, customtkinter
 import shodan, nmap3, subprocess, json
+from multiprocessing import Process
 from tkinter import messagebox
 from tkinter.ttk import *
 from tkinter import *
@@ -21,15 +22,15 @@ class Shomap(customtkinter.CTk):
         pw_windows.pack(fill='both', expand=True)
         
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=500)
-        IP_Entry.place(x=700, y=775, anchor='center')
+        IP_Entry.place(x=700, y=775, anchor='center')      
         
-        self.progressbar = Progressbar(self, mode="indeterminate", length=100)
-        self.progressbar.place(x=1195, y=765)
+        # Multi Processing attempt
+        p1 = Process(target=self.shodan_search(str(IP_Entry.get())))
+        p2 = Process(target=self.loading_bar())
+        p2.start()
+        
 
-        self.progressbar.config(mode='indeterminate', )
-
-        # The progress bar starts when the data is loading but doens't display itself moving.....
-        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.progressbar.start(),self.shodan_search(str(IP_Entry.get())), self.display_map(IP_Entry.get())])
+        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.shodan_search(str(IP_Entry.get()))])
         search_button.place(x=1050, y=775, anchor='center')
 
         # This is auto clicked when app starts, why?
@@ -43,9 +44,17 @@ class Shomap(customtkinter.CTk):
         self.icon_image = PhotoImage(file='assets/shodan-icon.png')
         self.iconphoto(False, self.icon_image)
 
+    def loading_bar(self):
+        self.progressbar = Progressbar(self, mode="indeterminate", length=100)
+        self.progressbar.place(x=1195, y=765)
+
+        self.progressbar.config(mode='indeterminate')
+        self.progressbar.start(3)
+
     def shodan_search(self, IP):
+        # Can't put it into a loop because then the whole program will loop
         try:
-            fpack = ("MS Serif", 10)
+            fpack = ("MS Serif", 15)
             host = api.host(IP)
             ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
             for items in host['data']:
@@ -90,7 +99,8 @@ class Shomap(customtkinter.CTk):
 
     def nmap_scan(self, IP):
         def start_scan():
-            nmap = nmap3.Nmap()
+            # Stopping Nmap scan while I try to fix button first.
+            #nmap = nmap3.Nmap()
             # Nmap returns in json
             results = nmap.nmap_version_detection(str(IP))
         
