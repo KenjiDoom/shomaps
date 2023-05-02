@@ -1,5 +1,5 @@
 import tkintermapview, customtkinter
-import shodan, nmap3, subprocess, json
+import shodan, nmap3, subprocess, json, time
 from multiprocessing import Process
 from tkinter import messagebox
 from tkinter.ttk import *
@@ -24,9 +24,6 @@ class Shomap(customtkinter.CTk):
         IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=500)
         IP_Entry.place(x=700, y=775, anchor='center')      
         
-        # Multi Processing attempt
-        #self.p2 = Process(target=self.loading_bar())
-
         search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.loading_bar(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
 
         search_button.place(x=1050, y=775, anchor='center')
@@ -35,7 +32,6 @@ class Shomap(customtkinter.CTk):
         nmap_scan = customtkinter.CTkButton(master=self.Panel1_results, text='Perform Nmap Scan', command=self.nmap_scan('45.33.49.119'))
         nmap_scan.place(x=150, y=720)
 
-        # More results will open a window with complete shodan information about the target
         more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=self.more_data('IP_HERE'))
         more_results.place(x=300, y=720)
 
@@ -43,14 +39,17 @@ class Shomap(customtkinter.CTk):
         self.iconphoto(False, self.icon_image)
 
     def loading_bar(self, IP):
-        self.progressbar = Progressbar(self, mode="indeterminate", length=100)
+        self.progressbar = Progressbar(self, mode="determinate", length=100)
         self.progressbar.place(x=1195, y=765)
-        self.progressbar.config(mode='indeterminate')
-        self.progressbar.start(5)
-        
+        self.progressbar['value'] = 50
+        self.update_idletasks()
+        time.sleep(1)
         self.p3 = Process(target=self.shodan_search(IP))
         self.p3.start()
-
+        self.progressbar['value'] = 100
+        self.update_idletasks()
+        time.sleep(1)
+    
     def shodan_search(self, IP):
         try:
             fpack = ("MS Serif", 15)
@@ -121,7 +120,6 @@ class Shomap(customtkinter.CTk):
         frame = customtkinter.CTkScrollableFrame(master=self.nmap_window, width=500, height=500, fg_color='DarkGray', label_text='Scan results for ' + str(IP))
         frame.place(x=50, y=10)
         
-        # We need to convert these into bits which will all have the value of zero until clicked they will become 1
         # What if we broke it down into two subsections... if the 4 way don't work
         customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').place(x=50, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').place(x=50, y=610)
