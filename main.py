@@ -1,10 +1,15 @@
 import tkintermapview, customtkinter
-import shodan, nmap3, subprocess, json, time, re
+import shodan, nmap3, subprocess, json, time, re, os
 from multiprocessing import Process
+from dotenv import dotenv_values
 from tkinter import messagebox
 from tkinter.ttk import *
 from tkinter import *
 
+global api 
+global shodan_API
+api = '' 
+shodan_API = shodan.Shodan(api)
 
 class Shomap(customtkinter.CTk):
     def __init__(self):
@@ -129,28 +134,25 @@ class Shomap(customtkinter.CTk):
         
         self.nmap_window.resizable(False, False)
 
-
     def more_data(self, IP):
-        print(IP)
+        pass
 
-global api 
-global shodan_API
-#api = ''
-api =''
-shodan_API = shodan.Shodan(api)
+    def check_API(self):
+        if os.path.exists('.env'):
+            secrets = dotenv_values('.env')
+            print('API Data: ' + secrets['API_KEY'])
+        else:
+            print('Starting file creation')
+            API_KEY = input("Enter API KEy: ")
+            with open('.env', 'w') as f:
+                f.write('API_KEY=' + API_KEY)
+                f.close()
+            print('Loading new data....')
+            secrets = dotenv_values('.env')
+            print('API Data ' + secrets['API_KEY'])
 
-
-def check_API():
-    global api
-    #print (api)
-    if not re.search("[a-z]", api):
-        print("It was found")
-    else:
-        print("Not found")
-
-
-check_API()
-# app = Shomap()
-# app.configure(fg_color='grey')
-# app.resizable(False, False)
-# app.mainloop()
+app = Shomap()
+app.check_API()
+app.configure(fg_color='grey')
+app.resizable(False, False)
+app.mainloop()
