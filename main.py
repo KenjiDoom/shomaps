@@ -1,11 +1,10 @@
 import tkintermapview, customtkinter
-import shodan, nmap3, subprocess, json, time
+import shodan, nmap3, subprocess, json, time, re
 from multiprocessing import Process
 from tkinter import messagebox
 from tkinter.ttk import *
 from tkinter import *
 
-api = shodan.Shodan('')
 
 class Shomap(customtkinter.CTk):
     def __init__(self):
@@ -134,7 +133,24 @@ class Shomap(customtkinter.CTk):
     def more_data(self, IP):
         print(IP)
 
-app = Shomap()
-app.configure(fg_color='grey')
-app.resizable(False, False)
-app.mainloop()
+global api 
+global shodan_API
+#api = ''
+api =''
+shodan_API = shodan.Shodan(api)
+
+
+def check_API():
+    global api
+    #print (api)
+    if not re.search("[a-z]", api):
+        print("It was found")
+    else:
+        print("Not found")
+
+
+check_API()
+# app = Shomap()
+# app.configure(fg_color='grey')
+# app.resizable(False, False)
+# app.mainloop()
