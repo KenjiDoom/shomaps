@@ -2,14 +2,12 @@ import tkintermapview, customtkinter
 import shodan, nmap3, subprocess, json, time, re, os
 from multiprocessing import Process
 from dotenv import dotenv_values
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 from tkinter.ttk import *
 from tkinter import *
 
-global api 
-global shodan_API
-api = '' 
-shodan_API = shodan.Shodan(api)
+global api_data
+api_data = ''
 
 class Shomap(customtkinter.CTk):
     def __init__(self):
@@ -20,7 +18,7 @@ class Shomap(customtkinter.CTk):
         pw_windows = Panedwindow(self, orient='horizontal')
         self.Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='white')
         self.panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='white')
-
+        
         pw_windows.add(self.Panel1_results, weight=50)
         pw_windows.add(self.panel2_maps, weight=50)
         pw_windows.pack(fill='both', expand=True)
@@ -39,9 +37,8 @@ class Shomap(customtkinter.CTk):
         more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=self.more_data('IP_HERE'))
         more_results.place(x=300, y=720)
 
-        # Had to comment this out because it wouldn't run properly when calling the api function
-        #self.icon_image = PhotoImage(file='assets/shodan-icon.png')
-        #self.iconphoto(False, self.icon_image)
+        self.icon_image = PhotoImage(file='assets/shodan-icon.png')
+        self.iconphoto(False, self.icon_image)
 
     def loading_bar(self, IP):
         self.progressbar = Progressbar(self, mode="determinate", length=100)
@@ -105,17 +102,18 @@ class Shomap(customtkinter.CTk):
 
     def nmap_scan(self, IP):
         def start_scan():
+            pass
             # Stopping Nmap scan while I try to fix button first.
             #nmap = nmap3.Nmap()
             # Nmap returns in json
-            results = nmap.nmap_version_detection(str(IP))
+            #results = nmap.nmap_version_detection(str(IP))
         
             # Grepping data 
-            for data in results[str(IP)]['ports']:
+            #for data in results[str(IP)]['ports']:
                 # This would be the output for ports and services scan
-                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
+            #    output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
                 #print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
-                customtkinter.CTkLabel(master=self.nmap_window, text=output).place(x=100, y=50)
+            #    customtkinter.CTkLabel(master=self.nmap_window, text=output).place(x=100, y=50)
 
         self.nmap_window = Toplevel(self, background='white')
         self.nmap_window.title("Nmap Scan")
@@ -131,34 +129,35 @@ class Shomap(customtkinter.CTk):
         customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
 
-        #customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=start_scan()).place(x=370, y=580)
+        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=start_scan()).place(x=370, y=580)
         
         self.nmap_window.resizable(False, False)
 
+
     def more_data(self, IP):
-        pass
+        print(IP)
 
 def check_API():
+    global api_data
     if os.path.exists('.env'):
         secrets = dotenv_values('.env')
-        print('API Data: ' + secrets['API_KEY'])
+        api_data = secrets['API_KEY']
+        print('API Key: ' + api_data)
     else:
-        dialog = customtkinter.CTkInputDialog(text='Enter shodan API key: ', title='API Registration')
-        API_key = dialog.get_input()
+        # Had to swtcih to tkinters default because customtkinter was giving me errors
+        dialog = simpledialog.askstring("Input", "Enter API Key:")
+        API_key = dialog
         with open('.env', 'w') as f:
             print('Writing data into file')
             f.write('API_KEY=' + API_key)
             f.close()
         print('Loading secrets from file')
         secrets = dotenv_values('.env')
-        print('API Data: ' + secrets['API_KEY'])
-        destroy()
+        api_data = secrets['API_KEY']
 
-
-
-if __name__ == '__main__':
-    check_API()
-    app = Shomap()
-    app.configure(fg_color='grey')
-    app.resizable(False, False)
-    app.mainloop()
+check_API()
+api = shodan.Shodan(str(api_data))
+app = Shomap()
+app.configure(fg_color='grey')
+app.resizable(False, False)
+app.mainloop()
