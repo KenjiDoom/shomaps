@@ -20,7 +20,7 @@ class Shomap(customtkinter.CTk):
         pw_windows = Panedwindow(self, orient='horizontal')
         self.Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='white')
         self.panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='white')
-        
+
         pw_windows.add(self.Panel1_results, weight=50)
         pw_windows.add(self.panel2_maps, weight=50)
         pw_windows.pack(fill='both', expand=True)
@@ -39,8 +39,9 @@ class Shomap(customtkinter.CTk):
         more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=self.more_data('IP_HERE'))
         more_results.place(x=300, y=720)
 
-        self.icon_image = PhotoImage(file='assets/shodan-icon.png')
-        self.iconphoto(False, self.icon_image)
+        # Had to comment this out because it wouldn't run properly when calling the api function
+        #self.icon_image = PhotoImage(file='assets/shodan-icon.png')
+        #self.iconphoto(False, self.icon_image)
 
     def loading_bar(self, IP):
         self.progressbar = Progressbar(self, mode="determinate", length=100)
@@ -137,22 +138,27 @@ class Shomap(customtkinter.CTk):
     def more_data(self, IP):
         pass
 
-    def check_API(self):
-        if os.path.exists('.env'):
-            secrets = dotenv_values('.env')
-            print('API Data: ' + secrets['API_KEY'])
-        else:
-            print('Starting file creation')
-            API_KEY = input("Enter API KEy: ")
-            with open('.env', 'w') as f:
-                f.write('API_KEY=' + API_KEY)
-                f.close()
-            print('Loading new data....')
-            secrets = dotenv_values('.env')
-            print('API Data ' + secrets['API_KEY'])
+def check_API():
+    if os.path.exists('.env'):
+        secrets = dotenv_values('.env')
+        print('API Data: ' + secrets['API_KEY'])
+    else:
+        dialog = customtkinter.CTkInputDialog(text='Enter shodan API key: ', title='API Registration')
+        API_key = dialog.get_input()
+        with open('.env', 'w') as f:
+            print('Writing data into file')
+            f.write('API_KEY=' + API_key)
+            f.close()
+        print('Loading secrets from file')
+        secrets = dotenv_values('.env')
+        print('API Data: ' + secrets['API_KEY'])
+        destroy()
 
-app = Shomap()
-app.check_API()
-app.configure(fg_color='grey')
-app.resizable(False, False)
-app.mainloop()
+
+
+if __name__ == '__main__':
+    check_API()
+    app = Shomap()
+    app.configure(fg_color='grey')
+    app.resizable(False, False)
+    app.mainloop()
