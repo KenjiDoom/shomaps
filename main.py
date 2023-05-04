@@ -52,7 +52,7 @@ class Shomap(customtkinter.CTk):
         self.progressbar['value'] = 100
         self.update_idletasks()
         time.sleep(1)
-    
+
     def shodan_search(self, IP):
         try:
             fpack = ("MS Serif", 15)
@@ -102,11 +102,12 @@ class Shomap(customtkinter.CTk):
             messagebox.showwarning('API Issue', message='Invalid API!!!')
 
     def nmap_scan(self, IP):
-        def start_scan():
+        def start_scan(IP):
+            print('Starting scan...')
             nmap = nmap3.Nmap()
             # Nmap returns in json
             results = nmap.nmap_version_detection(str(IP))
-        
+            print(results)
             # Grepping data 
             for data in results[str(IP)]['ports']:
                 # This would be the output for ports and services scan
@@ -122,13 +123,18 @@ class Shomap(customtkinter.CTk):
         frame = customtkinter.CTkScrollableFrame(master=self.nmap_window, width=500, height=500, fg_color='DarkGray', label_text='Scan results for ' + str(IP))
         frame.place(x=50, y=10)
         
+        # Porgress bar
+        progressbar2 = Progressbar(self.nmap_window, mode="determinate", length=100)
+        progressbar2.place(x=490, y=600)
+        
         # What if we broke it down into two subsections... if the 4 way don't work
         customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').place(x=50, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').place(x=50, y=610)
         customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
 
-        customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=start_scan()).place(x=370, y=580)
+        nmap_button = customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=lambda: start_scan(str(IP)))
+        nmap_button.place(x=370, y=580)
         
         self.nmap_window.resizable(False, False)
 
