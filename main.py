@@ -15,6 +15,7 @@ class Shomap(customtkinter.CTk):
         self.geometry("1400x800")
         self.title("Shomaps")
         fpack = ("MS Serif", 20)
+
         pw_windows = Panedwindow(self, orient='horizontal')
         self.Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='white')
         self.panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='white')
@@ -27,14 +28,14 @@ class Shomap(customtkinter.CTk):
         IP_Entry.place(x=700, y=775, anchor='center')      
         
         search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.loading_bar(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
-
         search_button.place(x=1050, y=775, anchor='center')
 
         # This is auto clicked when app starts, why?
-        nmap_scan = customtkinter.CTkButton(master=self.Panel1_results, text='Perform Nmap Scan', command=self.nmap_scan('45.33.49.119'))
-        nmap_scan.place(x=150, y=720)
+        # lambda will prevent the button from auto running
+        scan_nmap = customtkinter.CTkButton(master=self, text='Perform Nmap Scan', command=lambda: self.nmap_scan(str(IP_Entry.get())))
+        scan_nmap.place(x=150, y=760)
 
-        more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=self.more_data('IP_HERE'))
+        more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=lambda: self.more_data(str(IP_Entry.get())))
         more_results.place(x=300, y=720)
 
         self.icon_image = PhotoImage(file='assets/shodan-icon.png')
@@ -102,18 +103,16 @@ class Shomap(customtkinter.CTk):
 
     def nmap_scan(self, IP):
         def start_scan():
-            pass
-            # Stopping Nmap scan while I try to fix button first.
-            #nmap = nmap3.Nmap()
+            nmap = nmap3.Nmap()
             # Nmap returns in json
-            #results = nmap.nmap_version_detection(str(IP))
+            results = nmap.nmap_version_detection(str(IP))
         
             # Grepping data 
-            #for data in results[str(IP)]['ports']:
+            for data in results[str(IP)]['ports']:
                 # This would be the output for ports and services scan
-            #    output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-                #print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
-            #    customtkinter.CTkLabel(master=self.nmap_window, text=output).place(x=100, y=50)
+                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
+                print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
+                customtkinter.CTkLabel(master=self.nmap_window, text=output).place(x=100, y=50)
 
         self.nmap_window = Toplevel(self, background='white')
         self.nmap_window.title("Nmap Scan")
@@ -133,7 +132,6 @@ class Shomap(customtkinter.CTk):
         
         self.nmap_window.resizable(False, False)
 
-
     def more_data(self, IP):
         print(IP)
 
@@ -142,22 +140,19 @@ def check_API():
     if os.path.exists('.env'):
         secrets = dotenv_values('.env')
         api_data = secrets['API_KEY']
-        print('API Key: ' + api_data)
     else:
-        # Had to swtcih to tkinters default because customtkinter was giving me errors
         dialog = simpledialog.askstring("Input", "Enter API Key:")
         API_key = dialog
         with open('.env', 'w') as f:
-            print('Writing data into file')
             f.write('API_KEY=' + API_key)
             f.close()
-        print('Loading secrets from file')
         secrets = dotenv_values('.env')
         api_data = secrets['API_KEY']
 
-check_API()
-api = shodan.Shodan(str(api_data))
-app = Shomap()
-app.configure(fg_color='grey')
-app.resizable(False, False)
-app.mainloop()
+if __name__ == '__main__':
+    check_API()
+    api = shodan.Shodan(str(api_data))
+    app = Shomap()
+    app.configure(fg_color='grey')
+    app.resizable(False, False)
+    app.mainloop()
