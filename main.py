@@ -104,10 +104,16 @@ class Shomap(customtkinter.CTk):
     def nmap_scan(self, IP):
         def start_scan(IP):
             print('Starting scan...')
+            self.progressbar2['value'] = 50
+            self.update_idletasks()
+            time.sleep(1)
             nmap = nmap3.Nmap()
             # Nmap returns in json
             results = nmap.nmap_version_detection(str(IP))
             print(results)
+            self.progressbar2['value'] = 100
+            self.update_idletasks()
+            time.sleep(1)
             # Grepping data 
             for data in results[str(IP)]['ports']:
                 # This would be the output for ports and services scan
@@ -124,8 +130,8 @@ class Shomap(customtkinter.CTk):
         frame.place(x=50, y=10)
         
         # Porgress bar
-        progressbar2 = Progressbar(self.nmap_window, mode="determinate", length=100)
-        progressbar2.place(x=490, y=600)
+        self.progressbar2 = Progressbar(self.nmap_window, mode="determinate", length=100)
+        self.progressbar2.place(x=490, y=600)
         
         # What if we broke it down into two subsections... if the 4 way don't work
         customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').place(x=50, y=580)
