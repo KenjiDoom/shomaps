@@ -29,9 +29,7 @@ class Shomap(customtkinter.CTk):
         
         search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.loading_bar(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
         search_button.place(x=1050, y=775, anchor='center')
-
-        # This is auto clicked when app starts, why?
-        # lambda will prevent the button from auto running
+        
         scan_nmap = customtkinter.CTkButton(master=self, text='Perform Nmap Scan', command=lambda: self.nmap_scan(str(IP_Entry.get())))
         scan_nmap.place(x=150, y=760)
 
@@ -110,13 +108,15 @@ class Shomap(customtkinter.CTk):
             nmap = nmap3.Nmap()
             # Nmap returns in json
             results = nmap.nmap_version_detection(str(IP))
-            print(results)
+            print('Results are as follows' + results)
             self.progressbar2['value'] = 100
             self.update_idletasks()
             time.sleep(1)
+
             # Grepping data 
             for data in results[str(IP)]['ports']:
                 # This would be the output for ports and services scan
+                # Output and organize the data better
                 output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
                 print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
                 customtkinter.CTkLabel(master=self.nmap_window, text=output).place(x=100, y=50)
@@ -139,13 +139,16 @@ class Shomap(customtkinter.CTk):
         customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
 
-        nmap_button = customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=lambda: start_scan(str(IP)))
+        nmap_button = customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=lambda: start_scan(IP))
         nmap_button.place(x=370, y=580)
         
         self.nmap_window.resizable(False, False)
 
     def more_data(self, IP):
-        print(IP)
+        self.extra_data = Toplevel(self, background='white')
+        self.extra_data.title('More information ' + IP)
+        self.extra_data.geometry('500x500')
+        self.extra_data.resizable(False, False)
 
 def check_API():
     global api_data
