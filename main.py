@@ -29,8 +29,14 @@ class Shomap(customtkinter.CTk):
         
         search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.loading_bar(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
         search_button.place(x=1050, y=775, anchor='center')
-        
-        scan_nmap = customtkinter.CTkButton(master=self, text='Perform Nmap Scan', command=lambda: self.nmap_scan(str(IP_Entry.get())))
+
+        # Lets try and open the window up here. (PRIOR TO THE NMAP SCAN)
+        # Okay new problem this why I gave up yesterday...
+        # It's fetching the IP_Entry.get() prior to us even providng an IP.
+        # It's also opening the nmamp box without permissions. Auto open
+        # If nmap button clicked then then the program starts
+        scan_nmap = customtkinter.CTkButton(master=self, text='Perform Nmap Scan', command=lambda: self.start_nmap_program(str(IP_Entry.get())))
+        scan_nmap.configure(DISABLED)
         scan_nmap.place(x=150, y=760)
 
         more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=lambda: self.more_data(str(IP_Entry.get())))
@@ -38,6 +44,14 @@ class Shomap(customtkinter.CTk):
 
         self.icon_image = PhotoImage(file='assets/shodan-icon.png')
         self.iconphoto(False, self.icon_image)
+
+    def start_nmap_program(self, IP):
+        # Multi processing will go in here
+        print(IP)
+        print("Starting multi-processing hopes this works")
+        nmapp = Process(target=self.nmap_scan(IP))
+        nmapp.start()
+        nmapp.join()
 
     def loading_bar(self, IP):
         self.progressbar = Progressbar(self, mode="determinate", length=100)
@@ -104,14 +118,19 @@ class Shomap(customtkinter.CTk):
             print('Starting scan...')
             self.progressbar2['value'] = 50
             self.update_idletasks()
-            time.sleep(1)
+            # Could this be the reason why?, we're using time.sleep()?
+            # Now that it's been commented out let's try to use multi processing or multi-thrading
+            # WE might have to run the multi-processing prior when the orginal nmap button is clicked.
+            # Because mulit-processing cannot be ran twice (yesterday erros)
+
+            #time.sleep(1)
             nmap = nmap3.Nmap()
             # Nmap returns in json
             results = nmap.nmap_version_detection(str(IP))
-            print('Results are as follows' + results)
+            print(results)
             self.progressbar2['value'] = 100
             self.update_idletasks()
-            time.sleep(1)
+            #time.sleep(1)
 
             # Grepping data 
             for data in results[str(IP)]['ports']:
@@ -139,6 +158,7 @@ class Shomap(customtkinter.CTk):
         customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
         customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
 
+        # When clicked twice using multi-processing we get an error of that we can't run it twice
         nmap_button = customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=lambda: start_scan(IP))
         nmap_button.place(x=370, y=580)
         
