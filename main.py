@@ -3,14 +3,16 @@ import shodan, nmap3, subprocess, json, time, re, os
 from multiprocessing import Process
 from dotenv import dotenv_values
 from tkinter import messagebox, simpledialog
+import threading
 from tkinter.ttk import *
 from tkinter import *
+
 
 global api_data
 api_data = ''
 
 class Shomap(customtkinter.CTk):
-    def __init__(self):
+    def __init__(self): # Is this what they mean??? it's a bad idea to run mainloop() function within this function
         super().__init__()
         self.geometry("1400x800")
         self.title("Shomaps")
@@ -90,79 +92,7 @@ class Shomap(customtkinter.CTk):
                 COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=(str(h))).place(x=215, y=250)
         except shodan.exception.APIError:
             print('You must enter your API key')
-            messagebox.showwarning('API Issue', message='Invalid API!!!')  
-    
-    def display_map(self, IP):
-        try:
-            host = api.host(IP)
-            self.coordinates, self.coordinates2 = [],[]
-            for items in host['data']:
-                self.coordinates.append(items['location']['latitude'])
-                self.coordinates2.append(items['location']['longitude'])
-                print(self.coordinates, self.coordinates2)
-            for index, (a, b) in enumerate(zip(self.coordinates, self.coordinates2)):
-                self.map_widget = tkintermapview.TkinterMapView(self.panel2_maps, corner_radius=0)
-                self.map_widget.set_position(a, b)
-                self.map_widget.set_marker(a, b, text=str(IP)) # Using google servers
-                self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
-                self.map_widget.grid(row=0, column=0, sticky="nsew") 
-    
-                self.panel2_maps.grid_rowconfigure(0, weight=1)
-                self.panel2_maps.grid_columnconfigure(0, weight=1)
-        except shodan.exception.APIError:
-            print('You must enter your API key')
             messagebox.showwarning('API Issue', message='Invalid API!!!')
-
-    def nmap_scan(self, IP):
-        def start_scan(IP):
-            print('Starting scan...')
-            self.progressbar2['value'] = 50
-            self.update_idletasks()
-            # Could this be the reason why?, we're using time.sleep()?
-            # Now that it's been commented out let's try to use multi processing or multi-thrading
-            # WE might have to run the multi-processing prior when the orginal nmap button is clicked.
-            # Because mulit-processing cannot be ran twice (yesterday erros)
-
-            #time.sleep(1)
-            nmap = nmap3.Nmap()
-            # Nmap returns in json
-            results = nmap.nmap_version_detection(str(IP))
-            print(results)
-            self.progressbar2['value'] = 100
-            self.update_idletasks()
-            #time.sleep(1)
-
-            # Grepping data 
-            for data in results[str(IP)]['ports']:
-                # This would be the output for ports and services scan
-                # Output and organize the data better
-                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-                print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
-                customtkinter.CTkLabel(master=self.nmap_window, text=output).place(x=100, y=50)
-
-        self.nmap_window = Toplevel(self, background='white')
-        self.nmap_window.title("Nmap Scan")
-        self.nmap_window.geometry('600x650')
-
-        # Scrollable frame
-        frame = customtkinter.CTkScrollableFrame(master=self.nmap_window, width=500, height=500, fg_color='DarkGray', label_text='Scan results for ' + str(IP))
-        frame.place(x=50, y=10)
-        
-        # Porgress bar
-        self.progressbar2 = Progressbar(self.nmap_window, mode="determinate", length=100)
-        self.progressbar2.place(x=490, y=600)
-        
-        # What if we broke it down into two subsections... if the 4 way don't work
-        customtkinter.CTkCheckBox(self.nmap_window, text='OS Dection').place(x=50, y=580)
-        customtkinter.CTkCheckBox(self.nmap_window, text='Stealth Scan').place(x=50, y=610)
-        customtkinter.CTkCheckBox(self.nmap_window, text='UDP Scan').place(x=200, y=580)
-        customtkinter.CTkCheckBox(self.nmap_window, text='Save Results').place(x=200, y=610)
-
-        # When clicked twice using multi-processing we get an error of that we can't run it twice
-        nmap_button = customtkinter.CTkButton(self.nmap_window, text_color='black', text='Start Scan', height=55, width=55, hover_color='red', command=lambda: start_scan(IP))
-        nmap_button.place(x=370, y=580)
-        
-        self.nmap_window.resizable(False, False)
 
     def more_data(self, IP):
         try:
@@ -172,6 +102,7 @@ class Shomap(customtkinter.CTk):
                 for items in host['data']:
                     self.banner.append(items['data'])
                 for index, (a) in enumerate(zip(self.banner)):
+                    banner_info = Label(master=self.extra_data, text_color='black', text=(str(a))).place(x=10, y=20)     
                     print(str(a))
         except shodan.exception.APIError:
             print('You must enter your API key')
@@ -181,6 +112,7 @@ class Shomap(customtkinter.CTk):
         self.extra_data.title('More information ' + IP)
         self.extra_data.geometry('500x500')
         self.extra_data.resizable(False, False)
+
 
 def check_API():
     global api_data
@@ -196,10 +128,61 @@ def check_API():
         secrets = dotenv_values('.env')
         api_data = secrets['API_KEY']
 
-if __name__ == '__main__':
-    check_API()
-    api = shodan.Shodan(str(api_data))
-    app = Shomap()
-    app.configure(fg_color='grey')
-    app.resizable(False, False)
-    app.mainloop()
+class Nwindow(customtkinter.CTk):
+    data = ''
+    def __init__(self, data):
+        super().__init__()
+        self.geometry('600x650')
+        self.title('Nmap Window')
+
+        self.data = data
+        
+        self.scan_button = Button(master=self, text='Start scan', command=lambda:[self.nmap_scanning(str(self.data))])
+        self.scan_button.place(y=10, x=10)
+
+    def nmap_scanning(self, data):
+        IP = '45.33.49.119'
+        print('The fucntion is working....')
+        data_output = 'Here is a list of things to say'
+        print(data)
+        self.label_to_window = customtkinter.CTkLabel(master=self, text='Output:' + data_output)
+        self.label_to_window.place(y=50, x=50)
+        #nmap = nmap3.Nmap()
+        #results = nmap.nmap_version_detection(str(IP))
+        #print(results)
+        #for data in results[str(IP)]['ports']:
+        #    output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
+        #    print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
+
+
+class checkcalling(customtkinter.CTk):
+    # Think of this as a the shodan window
+    def __init__(self):
+        super().__init__()
+        self.geometry('600x600')
+        self.title('Shodan Window')
+
+        shodan_scan_button = Button(master=self, text='Start nmap scan', command=self.start_nmap)
+        shodan_scan_button.place(x=50, y=50)
+
+    def start_nmap(self):
+        print("Starting shdoan scan")
+        
+        i = 1
+        while(i<=20):
+            print('Counting to 20: ' + str(i))
+            i += 1
+
+def first_window():
+    P1 = checkcalling()
+    P1.mainloop()
+
+def second_window():
+    P3 = Nwindow('Data was given inside the main loop thing')
+    P3.mainloop()
+
+t1 = threading.Thread(target=first_window)
+t2 = threading.Thread(target=second_window)
+t1.start()
+t2.start()
+
