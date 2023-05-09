@@ -165,6 +165,18 @@ class Shomap(customtkinter.CTk):
         self.nmap_window.resizable(False, False)
 
     def more_data(self, IP):
+        try:
+            host = api.host(IP)
+            self.banner = []
+            for items in host['data']:
+                for items in host['data']:
+                    self.banner.append(items['data'])
+                for index, (a) in enumerate(zip(self.banner)):
+                    print(str(a))
+        except shodan.exception.APIError:
+            print('You must enter your API key')
+            messagebox.showwarning('API Issue', message='Invalid API!!!')
+
         self.extra_data = Toplevel(self, background='white')
         self.extra_data.title('More information ' + IP)
         self.extra_data.geometry('500x500')
