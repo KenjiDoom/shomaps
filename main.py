@@ -144,15 +144,14 @@ class Nwindow(customtkinter.CTk):
         IP = '45.33.49.119'
         print('The fucntion is working....')
         data_output = 'Here is a list of things to say'
-        print(data)
         self.label_to_window = customtkinter.CTkLabel(master=self, text='Output:' + data_output)
         self.label_to_window.place(y=50, x=50)
-        #nmap = nmap3.Nmap()
-        #results = nmap.nmap_version_detection(str(IP))
-        #print(results)
-        #for data in results[str(IP)]['ports']:
-        #    output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-        #    print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
+        nmap = nmap3.Nmap()
+        results = nmap.nmap_version_detection(str(IP))
+        print(results)
+        for data in results[str(IP)]['ports']:
+            output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
+            print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
 
 
 class checkcalling(customtkinter.CTk):
@@ -166,23 +165,44 @@ class checkcalling(customtkinter.CTk):
         shodan_scan_button.place(x=50, y=50)
 
     def start_nmap(self):
-        print("Starting shdoan scan")
-        
-        i = 1
-        while(i<=20):
-            print('Counting to 20: ' + str(i))
-            i += 1
+        key = ''
+        api = shodan.Shodan(key)
+        IP = '45.33.49.119'
+        try:
+            host = api.host(IP)
+            self.banner = []
+            for items in host['data']:
+                for items in host['data']:
+                    self.banner.append(items['data'])
+                for index, (a) in enumerate(zip(self.banner)):
+                    print(str(a))
+        except shodan.exception.APIError:
+            print('You must enter your API key')
+            messagebox.showwarning('API Issue', message='Invalid API!!!')
 
-def first_window():
+def first_window(): # Shodan window
     P1 = checkcalling()
     P1.mainloop()
 
-def second_window():
-    P3 = Nwindow('Data was given inside the main loop thing')
+def second_window(): # Nmap window
+    P3 = Nwindow('45.33.49.119')
     P3.mainloop()
 
 t1 = threading.Thread(target=first_window)
 t2 = threading.Thread(target=second_window)
-t1.start()
-t2.start()
+#t1.start()
+#t2.start()
 
+root = Tk()
+
+# Nmap window
+click = Button(master=root, text='Open nmap window', command=lambda:[t2.start()])
+click.place(x=10, y=10)
+# Shodan Window
+click2 = Button(master=root, text='Open shodan window', command=lambda:[t1.start()])
+click2.place(x=50, y=50)
+
+root.geometry('500x500')
+root.title('Main window here')
+
+root.mainloop()
