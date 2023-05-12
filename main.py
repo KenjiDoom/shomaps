@@ -1,133 +1,12 @@
-import tkintermapview, customtkinter
-import shodan, nmap3, subprocess, json, time, re, os
-from multiprocessing import Process
-from dotenv import dotenv_values
 from tkinter import messagebox, simpledialog
-import threading
+import tkintermapview
 from tkinter.ttk import *
 from tkinter import *
+from multiprocessing import Process
+import shodan, nmap3, customtkinter, threading, time, os
 
 
-global api_data
-api_data = ''
-
-class Shomap(customtkinter.CTk):
-    def __init__(self): # Is this what they mean??? it's a bad idea to run mainloop() function within this function
-        super().__init__()
-        self.geometry("1400x800")
-        self.title("Shomaps")
-        fpack = ("MS Serif", 20)
-
-        pw_windows = Panedwindow(self, orient='horizontal')
-        self.Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='white')
-        self.panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='white')
-        
-        pw_windows.add(self.Panel1_results, weight=50)
-        pw_windows.add(self.panel2_maps, weight=50)
-        pw_windows.pack(fill='both', expand=True)
-        
-        IP_Entry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP Address", placeholder_text_color=('black'), height=40, width=500)
-        IP_Entry.place(x=700, y=775, anchor='center')      
-        
-        search_button = customtkinter.CTkButton(master=self, fg_color='red', text='Search', command=lambda:[self.loading_bar(str(IP_Entry.get())), self.display_map(str(IP_Entry.get()))])
-        search_button.place(x=1050, y=775, anchor='center')
-
-        # Lets try and open the window up here. (PRIOR TO THE NMAP SCAN)
-        # Okay new problem this why I gave up yesterday...
-        # It's fetching the IP_Entry.get() prior to us even providng an IP.
-        # It's also opening the nmamp box without permissions. Auto open
-        # If nmap button clicked then then the program starts
-        scan_nmap = customtkinter.CTkButton(master=self, text='Perform Nmap Scan', command=lambda: self.start_nmap_program(str(IP_Entry.get())))
-        scan_nmap.configure(DISABLED)
-        scan_nmap.place(x=150, y=760)
-
-        more_results = customtkinter.CTkButton(master=self.Panel1_results, text='More Information', command=lambda: self.more_data(str(IP_Entry.get())))
-        more_results.place(x=300, y=720)
-
-        self.icon_image = PhotoImage(file='assets/shodan-icon.png')
-        self.iconphoto(False, self.icon_image)
-
-    def start_nmap_program(self, IP):
-        # Multi processing will go in here
-        print(IP)
-        print("Starting multi-processing hopes this works")
-        nmapp = Process(target=self.nmap_scan(IP))
-        nmapp.start()
-        nmapp.join()
-
-    def loading_bar(self, IP):
-        self.progressbar = Progressbar(self, mode="determinate", length=100)
-        self.progressbar.place(x=1195, y=765)
-        self.progressbar['value'] = 50
-        self.update_idletasks()
-        time.sleep(1)
-        self.p3 = Process(target=self.shodan_search(IP))
-        self.p3.start()
-        self.progressbar['value'] = 100
-        self.update_idletasks()
-        time.sleep(1)
-
-    def shodan_search(self, IP):
-        try:
-            fpack = ("MS Serif", 15)
-            host = api.host(IP)
-            ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
-            for items in host['data']:
-                ip.append(items['ip_str'])
-                banner.append(items['data'])
-                port.append(items['port'])
-                city.append(host.get('city', 'n/a'))
-                domains.append(host.get('domain', 'n/a'))
-                asn.append(items['asn'])
-                coordinates.append(items['location']['latitude'])
-                coordinates2.append(items['location']['longitude'])
-
-            for index, (a, b, c, d, e, f, g, h) in enumerate(zip(ip, banner, port, city, domains, asn, coordinates, coordinates2)):
-                IP_label = customtkinter.CTkLabel(master=self.Panel1_results,font=fpack, text_color='black', text=('IP Address: ' + str(a))).place(x=10, y=20)     
-                PORT_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('Port numbers: ' + str(c))).place(x=10, y=60)
-                CITY_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('City: ' + str(d))).place(x=10, y=100)
-                DOMAINS_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('Domain: ' + str(e))).place(x=10, y=150)
-                ASN_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('ASN: ' + str(f))).place(x=10, y=200)
-                COORDINATES_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=('coordinates: ' + str(g))).place(x=10, y=250)
-                COORDINATES2_label = customtkinter.CTkLabel(master=self.Panel1_results, font=fpack, text_color='black', text=(str(h))).place(x=215, y=250)
-        except shodan.exception.APIError:
-            print('You must enter your API key')
-            messagebox.showwarning('API Issue', message='Invalid API!!!')
-
-    def more_data(self, IP):
-        try:
-            host = api.host(IP)
-            self.banner = []
-            for items in host['data']:
-                for items in host['data']:
-                    self.banner.append(items['data'])
-                for index, (a) in enumerate(zip(self.banner)):
-                    banner_info = Label(master=self.extra_data, text_color='black', text=(str(a))).place(x=10, y=20)     
-                    print(str(a))
-        except shodan.exception.APIError:
-            print('You must enter your API key')
-            messagebox.showwarning('API Issue', message='Invalid API!!!')
-
-        self.extra_data = Toplevel(self, background='white')
-        self.extra_data.title('More information ' + IP)
-        self.extra_data.geometry('500x500')
-        self.extra_data.resizable(False, False)
-
-
-def check_API():
-    global api_data
-    if os.path.exists('.env'):
-        secrets = dotenv_values('.env')
-        api_data = secrets['API_KEY']
-    else:
-        dialog = simpledialog.askstring("Input", "Enter API Key:")
-        API_key = dialog
-        with open('.env', 'w') as f:
-            f.write('API_KEY=' + API_key)
-            f.close()
-        secrets = dotenv_values('.env')
-        api_data = secrets['API_KEY']
-
+# ------------------ Namp window ----------------- #
 class Nwindow(customtkinter.CTk):
     data = ''
     def __init__(self, data):
@@ -141,6 +20,7 @@ class Nwindow(customtkinter.CTk):
         self.scan_button.place(y=10, x=10)
 
     def nmap_scanning(self, data):
+        # LEFT OFF HERE FIX THIS WINDOW
         IP = '45.33.49.119'
         print('The fucntion is working....')
         data_output = 'Here is a list of things to say'
@@ -153,56 +33,110 @@ class Nwindow(customtkinter.CTk):
             output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
             print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
 
+# ------------------ Namp window ----------------- #
 
-class checkcalling(customtkinter.CTk):
-    # Think of this as a the shodan window
-    def __init__(self):
-        super().__init__()
-        self.geometry('600x600')
-        self.title('Shodan Window')
 
-        shodan_scan_button = Button(master=self, text='Start nmap scan', command=self.start_nmap)
-        shodan_scan_button.place(x=50, y=50)
+# ------------------ Shodan Search Function ---------------------#
+key = ''
+api = shodan.Shodan(key)
 
-    def start_nmap(self):
-        key = ''
-        api = shodan.Shodan(key)
-        IP = '45.33.49.119'
-        try:
-            host = api.host(IP)
-            self.banner = []
-            for items in host['data']:
-                for items in host['data']:
-                    self.banner.append(items['data'])
-                for index, (a) in enumerate(zip(self.banner)):
-                    print(str(a))
-        except shodan.exception.APIError:
-            print('You must enter your API key')
-            messagebox.showwarning('API Issue', message='Invalid API!!!')
+def loading_bar():
+    progress = Progressbar(root, mode="determinate", length=150)
+    progress.place(x=1200, y=765)
+    progress['value'] = 50
+    progress.update_idletasks()
+    time.sleep(1)
+    P10 = Process(target=shodan_search())
+    P10.start()
+    progress['value'] = 100
+    progress.update_idletasks
+    time.sleep(1)
 
-def first_window(): # Shodan window
-    P1 = checkcalling()
+def shodan_search():
+    print('Shodan search running')
+    IP = '45.33.49.119'
+    try:
+        host = api.host(IP)
+        ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
+        for items in host['data']:
+            ip.append(items['ip_str'])
+            banner.append(items['data'])
+            port.append(items['port'])
+            city.append(host.get('city', 'n/a'))
+            domains.append(host.get('domain', 'n/a'))
+            asn.append(items['asn'])
+            coordinates.append(items['location']['latitude'])
+            coordinates2.append(items['location']['longitude'])
+
+        for index, (a, b, c, d, e, f, g) in enumerate(zip(ip, port, city, domains, asn, coordinates, coordinates2)):
+            Label(master=Panel1_results, text=str(a)).place(x=10, y=20)
+            Label(master=Panel1_results, text=str(b)).place(x=10, y=60)
+            Label(master=Panel1_results, text=str(c)).place(x=10, y=100)
+            Label(master=Panel1_results, text=str(d)).place(x=10, y=150)
+            Label(master=Panel1_results, text=str(e)).place(x=10, y=200)
+            Label(master=Panel1_results, text=str(f)).place(x=10, y=250)
+            Label(master=Panel1_results, text=str(g)).place(x=10, y=300)
+    except shodan.exception.APIError:
+        print('Invalid API!')
+        messagebox.showwarning('API Issue', message='Invalid API!!')
+
+def display_shodan_map():
+    print('Shodan Map Running')
+    IP = '45.33.49.119'
+    try:
+        host = api.host(IP)
+        coordinates1, coordinates2 = [],[]
+        for items in host['data']:
+            coordinates1.append(items['location']['latitude'])
+            coordinates2.append(items['location']['longitude'])
+            print(coordinates1, coordinates2)
+        for index, (a, b) in enumerate(zip(coordinates1, coordinates2)):
+            # segmentation fault (core dumped) - Here
+            map_widget = tkintermapview.TkinterMapView(Panel2_maps, corner_radius=0)
+            map_widget.set_position(a, b)
+            map_widget.set_marker(a, b, text=str(IP))
+            map_widget.set_tile_server("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png", max_zoom=22)
+            map_widget.grid(row=0, column=0, sticky="nsew")
+            
+            Panel2_maps.grid_rowconfigure(0, weight=1)
+            Panel2_maps.grid_columnconfigure(0, weight=1)
+    except shodan.exception.APIError:
+            print('You must enter an API key!')
+            messagebox.showwarning('API Issue', message='Invalid API!!')
+
+# --------------- Functions for extra windows ---------------- #
+def nmap_window(): # Nmap window
+    P1 = Nwindow('45.33.49.119')
     P1.mainloop()
-
-def second_window(): # Nmap window
-    P3 = Nwindow('45.33.49.119')
-    P3.mainloop()
-
-t1 = threading.Thread(target=first_window)
-t2 = threading.Thread(target=second_window)
-#t1.start()
-#t2.start()
+T1 = threading.Thread(target=nmap_window)
+# ------------------------------- Main Window Bellow --------------------------------------------
 
 root = Tk()
+print('Main window running')
+root.geometry("1400x800")
+root.title("Shomaps")
+fpack = ("MS Serif", 20)
 
-# Nmap window
-click = Button(master=root, text='Open nmap window', command=lambda:[t2.start()])
-click.place(x=10, y=10)
-# Shodan Window
-click2 = Button(master=root, text='Open shodan window', command=lambda:[t1.start()])
-click2.place(x=50, y=50)
+# Framed windows
+pw_windows = Panedwindow(root, orient='horizontal')
+Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='white')
+Panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='white')
+# Frame windows extension
+pw_windows.add(Panel1_results, weight=50)
+pw_windows.add(Panel2_maps, weight=50)
+pw_windows.pack(fill='both', expand=True)
 
-root.geometry('500x500')
-root.title('Main window here')
+
+IP_Entry = Entry(master=root, text="Enter IP Address", width=30)
+IP_Entry.place(x=700, y=775, anchor='center')
+
+search_button = Button(master=root, text='Shodan Search', command=lambda:[loading_bar(), display_shodan_map()])
+search_button.place(x=980, y=775, anchor='center')
+
+scan_nmap = Button(master=root, text='Perform Nmap Scan', command=lambda:[T1.start()])
+scan_nmap.place(x=150, y=760)
+
+more_results = Button(master=root, text='More Information')
+more_results.place(x=350, y=760)
 
 root.mainloop()
