@@ -32,7 +32,20 @@ class Nwindow(customtkinter.CTk):
         self.IP = IP
         
         self.scan_button = Button(master=self, text='Start scan', command=lambda:[self.nmap_scanning(str(self.IP))])
-        self.scan_button.place(y=10, x=10)
+        self.scan_button.place(x=370, y=565)
+        
+        self.frame = Frame(master=self, width=500, height=500, background='white')
+        self.frame.place(x=50, y=10)
+        
+        self.scroll = Scrollbar(self.frame)
+        self.scroll.place(x=470, y=10, height=485, width=20)
+        
+        C1 = Checkbutton(self, text='OS Detection', onvalue=1).place(x=50, y=550)
+        C2 = Checkbutton(self, text='Stealth Scan', onvalue=1).place(x=50, y=590)
+        C3 = Checkbutton(self, text="UDP Scan", onvalue=1).place(x=200, y=550)
+        C4 = Checkbutton(self, text="Save Results", onvalue=1).place(x=200, y=590)
+
+        self.resizable(False, False)
 
     def nmap_scanning(self, IP):
         # LEFT OFF HERE FIX THIS WINDOW
