@@ -40,21 +40,20 @@ class Nwindow(customtkinter.CTk):
 key = ''
 api = shodan.Shodan(key)
 
-def loading_bar():
+def loading_bar(IP):
     progress = Progressbar(root, mode="determinate", length=150)
     progress.place(x=1200, y=765)
     progress['value'] = 50
     progress.update_idletasks()
     time.sleep(1)
-    P10 = Process(target=shodan_search())
+    P10 = Process(target=shodan_search(IP))
     P10.start()
     progress['value'] = 100
     progress.update_idletasks
     time.sleep(1)
 
-def shodan_search():
+def shodan_search(IP):
     print('Shodan search running')
-    IP = '45.33.49.119'
     try:
         host = api.host(IP)
         ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
@@ -80,9 +79,8 @@ def shodan_search():
         print('Invalid API!')
         messagebox.showwarning('API Issue', message='Invalid API!!')
 
-def display_shodan_map():
+def display_shodan_map(IP):
     print('Shodan Map Running')
-    IP = '45.33.49.119'
     try:
         host = api.host(IP)
         coordinates1, coordinates2 = [],[]
@@ -106,7 +104,7 @@ def display_shodan_map():
 
 # --------------- Functions for extra windows ---------------- #
 def nmap_window(): # Nmap window
-    P1 = Nwindow('45.33.49.119')
+    P1 = Nwindow(IP_Entry.get())
     P1.mainloop()
 T1 = threading.Thread(target=nmap_window)
 # ------------------------------- Main Window Bellow --------------------------------------------
@@ -130,7 +128,7 @@ pw_windows.pack(fill='both', expand=True)
 IP_Entry = Entry(master=root, text="Enter IP Address", width=30)
 IP_Entry.place(x=700, y=775, anchor='center')
 
-search_button = Button(master=root, text='Shodan Search', command=lambda:[loading_bar(), display_shodan_map()])
+search_button = Button(master=root, text='Shodan Search', command=lambda:[loading_bar(IP_Entry.get()), display_shodan_map(IP_Entry.get())])
 search_button.place(x=980, y=775, anchor='center')
 
 scan_nmap = Button(master=root, text='Perform Nmap Scan', command=lambda:[T1.start()])
