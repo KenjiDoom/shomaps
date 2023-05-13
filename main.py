@@ -1,27 +1,41 @@
+import shodan, nmap3, tkintermapview, customtkinter, threading, time, os
 from tkinter import messagebox, simpledialog
-import tkintermapview
+from multiprocessing import Process
+from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
-from multiprocessing import Process
-import shodan, nmap3, customtkinter, threading, time, os
 
+def check_API():
+    global api_key
+    if os.path.exists('.env'):
+        secrets = dotenv_values('.env')
+        api_key = str(secrets['API_KEY'])
+    else:
+        dialog = simpledialog.askstring('Input', 'Enter Shodan API key:')
+        with open('.env', 'w') as f:
+            f.write('API_KEY=' + str(dialog))
+            f.close()
+        secrets = dotenv_values('.env')
+        api_key = str(secrets['API_KEY'])
+
+global api_key
+api_key = ''
 
 # ------------------ Namp window ----------------- #
 class Nwindow(customtkinter.CTk):
-    data = ''
-    def __init__(self, data):
+    IP = ''
+    def __init__(self, IP):
         super().__init__()
         self.geometry('600x650')
         self.title('Nmap Window')
 
-        self.data = data
+        self.IP = IP
         
-        self.scan_button = Button(master=self, text='Start scan', command=lambda:[self.nmap_scanning(str(self.data))])
+        self.scan_button = Button(master=self, text='Start scan', command=lambda:[self.nmap_scanning(str(self.IP))])
         self.scan_button.place(y=10, x=10)
 
-    def nmap_scanning(self, data):
+    def nmap_scanning(self, IP):
         # LEFT OFF HERE FIX THIS WINDOW
-        IP = '45.33.49.119'
         print('The fucntion is working....')
         data_output = 'Here is a list of things to say'
         self.label_to_window = customtkinter.CTkLabel(master=self, text='Output:' + data_output)
@@ -37,8 +51,6 @@ class Nwindow(customtkinter.CTk):
 
 
 # ------------------ Shodan Search Function ---------------------#
-key = ''
-api = shodan.Shodan(key)
 
 def loading_bar(IP):
     progress = Progressbar(root, mode="determinate", length=150)
@@ -137,4 +149,6 @@ scan_nmap.place(x=150, y=760)
 more_results = Button(master=root, text='More Information')
 more_results.place(x=350, y=760)
 
+check_API()
+api = shodan.Shodan(str(api_key))
 root.mainloop()
