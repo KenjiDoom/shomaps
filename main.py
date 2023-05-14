@@ -39,15 +39,45 @@ class Nwindow(customtkinter.CTk):
         
         self.scroll = Scrollbar(self.frame)
         self.scroll.place(x=470, y=10, height=485, width=20)
+
+        self.text_label = Label(master=self.frame, width=50, text='Empty').place(x=50, y=50)
         
-        C1 = Checkbutton(self, text='OS Detection', onvalue=1).place(x=50, y=550)
-        C2 = Checkbutton(self, text='Stealth Scan', onvalue=1).place(x=50, y=590)
-        C3 = Checkbutton(self, text="UDP Scan", onvalue=1).place(x=200, y=550)
-        C4 = Checkbutton(self, text="Save Results", onvalue=1).place(x=200, y=590)
+        self.var1 = IntVar()
+        self.var2 = IntVar()
+        self.var3 = IntVar()
+        self.var4 = IntVar()
+        
+        C1 = Checkbutton(self, text='OS Detection', onvalue=1, offvalue=0, variable=self.var1, command=self.check_boxes).place(x=50, y=550)
+        C2 = Checkbutton(self, text='Stealth Scan', onvalue=1, offvalue=0, variable=self.var2, command=self.check_boxes).place(x=50, y=590)
+        C3 = Checkbutton(self, text="UDP Scan", onvalue=1, offvalue=0, variable=self.var3, command=self.check_boxes).place(x=200, y=550)
+        C4 = Checkbutton(self, text="Save Results", onvalue=1, offvalue=0, variable=self.var4, command=self.check_boxes).place(x=200, y=590)
 
         self.resizable(False, False)
 
+    def check_boxes(self):
+        if (self.var1.get() == 1) & (self.var2.get() == 0):
+            print('You chose OS detection')
+            self.text_label.config(text='You chose OS detection')
+        elif (self.var1.get() == 0) & (self.var2.get() == 1):
+            print('You chose stealth scan')
+            self.text_label.config('You chose stealth scan')
+        elif (self.var3.get() == 1) & (self.var4.get() == 0):
+            print('You chose UDP scan')
+            self.text_label.config('You chose UDP scan')
+        elif (self.var3.get() == 0) & (self.var4.get() == 1):
+            print('You chose Save results')
+            self.text_label.config(text='You chose to save the results')
+
+    def save_nmap_scan(self, IP, nmap_results):
+        print('Writing to file...')
+        print(nmap_results)
+        print(IP)
+        with open(str(IP), 'w') as f:
+            f.write(nmap_results)
+            f.close()
+
     def nmap_scanning(self, IP):
+        # Identifying service version
         # LEFT OFF HERE FIX THIS WINDOW
         print('The fucntion is working....')
         data_output = 'Here is a list of things to say'
@@ -162,6 +192,11 @@ scan_nmap.place(x=150, y=760)
 more_results = Button(master=root, text='More Information')
 more_results.place(x=350, y=760)
 
-check_API()
-api = shodan.Shodan(str(api_key))
-root.mainloop()
+
+P1 = Nwindow('192.168.1.81')
+P1.mainloop()
+
+# Uncomment this code for program to work normally.
+# check_API()
+# api = shodan.Shodan(str(api_key))
+# root.mainloop()
