@@ -47,24 +47,31 @@ class Nwindow(customtkinter.CTk):
         self.var3 = IntVar()
         self.var4 = IntVar()
         
-        C1 = Checkbutton(self, text='OS Detection', onvalue=1, offvalue=0, variable=self.var1, command=self.check_boxes).place(x=50, y=550)
-        C2 = Checkbutton(self, text='Stealth Scan', onvalue=1, offvalue=0, variable=self.var2, command=self.check_boxes).place(x=50, y=590)
-        C3 = Checkbutton(self, text="UDP Scan", onvalue=1, offvalue=0, variable=self.var3, command=self.check_boxes).place(x=200, y=550)
-        C4 = Checkbutton(self, text="Save Results", onvalue=1, offvalue=0, variable=self.var4, command=self.check_boxes).place(x=200, y=590)
+        C1 = Checkbutton(self, text='OS Detection', onvalue=1, offvalue=0, variable=self.var1, command=self.check_boxes)
+        C1.place(x=50, y=550)
+        
+        C2 = Checkbutton(self, text='Stealth Scan', onvalue=1, offvalue=0, variable=self.var2, command=self.check_boxes)
+        C2.place(x=50, y=590)
+        
+        C3 = Checkbutton(self, text="UDP Scan", onvalue=1, offvalue=0, variable=self.var3, command=self.check_boxes)
+        C3.place(x=200, y=550)
+        
+        C4 = Checkbutton(self, text="Save Results", onvalue=1, offvalue=0, variable=self.var4, command=self.check_boxes)
+        C4.place(x=200, y=590)
 
         self.resizable(False, False)
 
     def check_boxes(self):
-        if (self.var1.get() == 1) & (self.var2.get() == 0):
-            print('You chose OS detection')
+        if self.var1.get() == 1 and self.var2.get() == 0:
+            print('You chose OS detection') 
             self.text_label.config(text='You chose OS detection')
-        elif (self.var1.get() == 0) & (self.var2.get() == 1):
+        elif self.var1.get() == 0 and self.var2.get() == 1:
             print('You chose stealth scan')
-            self.text_label.config('You chose stealth scan')
-        elif (self.var3.get() == 1) & (self.var4.get() == 0):
+            self.text_label.config(text='You chose stealth scan')
+        elif self.var3.get() == 1 and self.var4.get() == 0:
             print('You chose UDP scan')
-            self.text_label.config('You chose UDP scan')
-        elif (self.var3.get() == 0) & (self.var4.get() == 1):
+            self.text_label.config(text='You chose UDP scan')
+        elif self.var3.get() == 0 and self.var4.get() == 1:
             print('You chose Save results')
             self.text_label.config(text='You chose to save the results')
 
@@ -192,11 +199,7 @@ scan_nmap.place(x=150, y=760)
 more_results = Button(master=root, text='More Information')
 more_results.place(x=350, y=760)
 
-
-P1 = Nwindow('192.168.1.81')
-P1.mainloop()
-
 # Uncomment this code for program to work normally.
 # check_API()
 # api = shodan.Shodan(str(api_key))
-# root.mainloop()
+root.mainloop()
