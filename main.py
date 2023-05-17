@@ -5,6 +5,7 @@ from multiprocessing import Process
 from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
+import json
 
 def check_API():
     global api_key
@@ -78,18 +79,29 @@ class Nwindow(customtkinter.CTk):
         print('OS detection script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
-        print(results)
+        json_output = json.dumps(results, indent=4)
+        print(json_output)
+        with open('OS_DETECT_OUTPUT.json', 'w') as f:
+            f.write(json_output)
+            f.close()
+
 
     def udp_scanning(self, IP):
         print("UDP scan script running")
         nmap = nmap3.NmapScanTechniques()
         result = nmap.nmap_udp_scan(str(IP))
+        with open('UDP_Results_' + str(IP), 'w') as f:
+            f.write(str(result))
+            f.close()
         print(results)
 
     def stealth_scanning(self, IP):
         print('Stealth scanning script running')
         nmap = nmap3.NmapScanTechniques()
         result = nmap.nmap_syn_scan(str(IP))
+        with open('Stealth_Scan_Results' + str(IP), 'w') as f:
+            f.write(result)
+            f.close()
         print(result)
 # ------------------ Namp window ----------------- #
 
