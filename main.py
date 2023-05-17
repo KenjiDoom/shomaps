@@ -32,11 +32,7 @@ class Nwindow(customtkinter.CTk):
         self.title('Nmap Window')
 
         self.IP = IP
-        
-        # Version detection scan button
-        self.scan_button = Button(master=self, text='Start scan', command=lambda:[self.version_detc(str(self.IP))])
-        self.scan_button.place(x=370, y=565)
-        
+
         self.frame = Frame(master=self, width=500, height=500, background='white')
         self.frame.place(x=50, y=10)
         
@@ -51,11 +47,11 @@ class Nwindow(customtkinter.CTk):
         C1.place(x=50, y=550)
         
         # Stealth scan button
-        C2 = Button(self, text='Stealth Scan')
+        C2 = Button(self, text='Stealth Scan', command=lambda: [self.stealth_scanning(str(self.IP))])
         C2.place(x=50, y=590)
         
-        # UDP scan button
-        C3 = Button(self, text="UDP Scan")
+        # UDP scan button [Replacing UDP with version detection scan]
+        C3 = Button(self, text="Version detection", command=lambda: [self.version_detc(str(IP))])
         C3.place(x=200, y=550)
         
         # Save results
@@ -71,6 +67,7 @@ class Nwindow(customtkinter.CTk):
 
     def version_detc(self, IP):
         # Identifying service version
+        print('Version detection scan running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
         for data in results[str(IP)]['ports']:
@@ -81,8 +78,19 @@ class Nwindow(customtkinter.CTk):
         print('OS detection script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
-        print(results)       
+        print(results)
 
+    def udp_scanning(self, IP):
+        print("UDP scan script running")
+        nmap = nmap3.NmapScanTechniques()
+        result = nmap.nmap_udp_scan(str(IP))
+        print(results)
+
+    def stealth_scanning(self, IP):
+        print('Stealth scanning script running')
+        nmap = nmap3.NmapScanTechniques()
+        result = nmap.nmap_syn_scan(str(IP))
+        print(result)
 # ------------------ Namp window ----------------- #
 
 
