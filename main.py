@@ -1,4 +1,5 @@
 import shodan, nmap3, tkintermapview, customtkinter, threading, time, os
+from tkinter import IntVar, Checkbutton, Button, Label, Frame, Scrollbar
 from tkinter import messagebox, simpledialog
 from multiprocessing import Process
 from dotenv import dotenv_values
@@ -22,6 +23,7 @@ global api_key
 api_key = ''
 
 # ------------------ Namp window ----------------- #
+
 class Nwindow(customtkinter.CTk):
     IP = ''
     def __init__(self, IP):
@@ -31,7 +33,8 @@ class Nwindow(customtkinter.CTk):
 
         self.IP = IP
         
-        self.scan_button = Button(master=self, text='Start scan', command=lambda:[self.nmap_scanning(str(self.IP))])
+        # Version detection scan button
+        self.scan_button = Button(master=self, text='Start scan', command=lambda:[self.version_detc(str(self.IP))])
         self.scan_button.place(x=370, y=565)
         
         self.frame = Frame(master=self, width=500, height=500, background='white')
@@ -40,62 +43,45 @@ class Nwindow(customtkinter.CTk):
         self.scroll = Scrollbar(self.frame)
         self.scroll.place(x=470, y=10, height=485, width=20)
 
-        self.text_label = Label(master=self.frame, width=50, text='Empty').place(x=50, y=50)
-        
-        self.var1 = IntVar()
-        self.var2 = IntVar()
-        self.var3 = IntVar()
-        self.var4 = IntVar()
-        
-        C1 = Checkbutton(self, text='OS Detection', onvalue=1, offvalue=0, variable=self.var1, command=self.check_boxes)
+        self.text_label = Label(master=self.frame, width=50, text='Empty')
+        self.text_label.place(x=50, y=50)
+
+        # OS detection scan
+        C1 = Button(self, text='OS Detection', command=lambda: [self.os_detec(str(self.IP))])
         C1.place(x=50, y=550)
         
-        C2 = Checkbutton(self, text='Stealth Scan', onvalue=1, offvalue=0, variable=self.var2, command=self.check_boxes)
+        # Stealth scan button
+        C2 = Button(self, text='Stealth Scan')
         C2.place(x=50, y=590)
         
-        C3 = Checkbutton(self, text="UDP Scan", onvalue=1, offvalue=0, variable=self.var3, command=self.check_boxes)
+        # UDP scan button
+        C3 = Button(self, text="UDP Scan")
         C3.place(x=200, y=550)
         
-        C4 = Checkbutton(self, text="Save Results", onvalue=1, offvalue=0, variable=self.var4, command=self.check_boxes)
+        # Save results
+        C4 = customtkinter.CTkCheckBox(self, text="Save Results", command=lambda: [self.save_nmap_scan()])
         C4.place(x=200, y=590)
 
         self.resizable(False, False)
 
-    def check_boxes(self):
-        if self.var1.get() == 1 and self.var2.get() == 0:
-            print('You chose OS detection') 
-            self.text_label.config(text='You chose OS detection')
-        elif self.var1.get() == 0 and self.var2.get() == 1:
-            print('You chose stealth scan')
-            self.text_label.config(text='You chose stealth scan')
-        elif self.var3.get() == 1 and self.var4.get() == 0:
-            print('You chose UDP scan')
-            self.text_label.config(text='You chose UDP scan')
-        elif self.var3.get() == 0 and self.var4.get() == 1:
-            print('You chose Save results')
-            self.text_label.config(text='You chose to save the results')
+    def save_nmap_scan(self):
+        # Might use global flag here
+        print('Savinag nmap scan results to file')
+        print('This command was ran sucessfully')
 
-    def save_nmap_scan(self, IP, nmap_results):
-        print('Writing to file...')
-        print(nmap_results)
-        print(IP)
-        with open(str(IP), 'w') as f:
-            f.write(nmap_results)
-            f.close()
-
-    def nmap_scanning(self, IP):
+    def version_detc(self, IP):
         # Identifying service version
-        # LEFT OFF HERE FIX THIS WINDOW
-        print('The fucntion is working....')
-        data_output = 'Here is a list of things to say'
-        self.label_to_window = customtkinter.CTkLabel(master=self, text='Output:' + data_output)
-        self.label_to_window.place(y=50, x=50)
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
-        print(results)
         for data in results[str(IP)]['ports']:
             output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-            print(data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'])
+            print(output)
+
+    def os_detec(self, IP):
+        print('OS detection script running')
+        nmap = nmap3.Nmap()
+        results = nmap.nmap_os_detection(IP)
+        print(results)       
 
 # ------------------ Namp window ----------------- #
 
@@ -199,7 +185,9 @@ scan_nmap.place(x=150, y=760)
 more_results = Button(master=root, text='More Information')
 more_results.place(x=350, y=760)
 
+
 # Uncomment this code for program to work normally.
-# check_API()
-# api = shodan.Shodan(str(api_key))
+#check_API()
+#api = shodan.Shodan(str(api_key))
+root.resizable(False, False)
 root.mainloop()
