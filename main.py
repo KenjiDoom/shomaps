@@ -80,29 +80,24 @@ class Nwindow(customtkinter.CTk):
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
         json_output = json.dumps(results, indent=4)
-        print(json_output)
-        with open('OS_DETECT_OUTPUT.json', 'w') as f:
+        with open('output.json', 'w') as f:
             f.write(json_output)
             f.close()
-
-
-    def udp_scanning(self, IP):
-        print("UDP scan script running")
-        nmap = nmap3.NmapScanTechniques()
-        result = nmap.nmap_udp_scan(str(IP))
-        with open('UDP_Results_' + str(IP), 'w') as f:
-            f.write(str(result))
-            f.close()
-        print(results)
+        b = open('os_detect_output.json')
+        obj = json.load(b)
+        print(obj['45.33.49.119']["osmatch"][0]["name"])
 
     def stealth_scanning(self, IP):
         print('Stealth scanning script running')
         nmap = nmap3.NmapScanTechniques()
         result = nmap.nmap_syn_scan(str(IP))
-        with open('Stealth_Scan_Results' + str(IP), 'w') as f:
-            f.write(result)
+        json_output = json.dumps(result, indent=4)
+        with open('stealth_scan.json', 'w') as f:
+            f.write(json_output)
             f.close()
-        print(result)
+        b = open('stealth_scan.json')
+        obj = json.load(b)
+        print(obj['45.33.49.119'])
 # ------------------ Namp window ----------------- #
 
 
