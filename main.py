@@ -62,12 +62,9 @@ class Nwindow(customtkinter.CTk):
         self.resizable(False, False)
 
     def save_nmap_scan(self):
-        # Might use global flag here
-        print('Savinag nmap scan results to file')
-        print('This command was ran sucessfully')
+        pass
 
     def version_detc(self, IP):
-        # Identifying service version
         print('Version detection scan running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
@@ -79,25 +76,10 @@ class Nwindow(customtkinter.CTk):
         print('OS detection script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
-        json_output = json.dumps(results, indent=4)
-        with open('output.json', 'w') as f:
-            f.write(json_output)
-            f.close()
-        b = open('os_detect_output.json')
-        obj = json.load(b)
-        print(obj['45.33.49.119']["osmatch"][0]["name"])
-
-    def stealth_scanning(self, IP):
-        print('Stealth scanning script running')
-        nmap = nmap3.NmapScanTechniques()
-        result = nmap.nmap_syn_scan(str(IP))
-        json_output = json.dumps(result, indent=4)
-        with open('stealth_scan.json', 'w') as f:
-            f.write(json_output)
-            f.close()
-        b = open('stealth_scan.json')
-        obj = json.load(b)
-        print(obj['45.33.49.119'])
+        for data in results[str(IP)]["osmatch"]:
+            print("Name: " + data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%')
+        
+    
 # ------------------ Namp window ----------------- #
 
 
