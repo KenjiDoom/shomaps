@@ -63,13 +63,16 @@ class Nwindow(customtkinter.CTk):
 
         self.resizable(False, False)
 
+    def checkbox_event(self):
+        print('The checkbox has been clicked: ' + self.check_Var.get())
+
     def version_detc(self, IP):
         logging.warning('starting version detection scan!')
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
         if self.check_Var.get() == 'on': 
             json_object = json.dumps(results[str(IP)]['ports'], indent=4)
-            with open(str(IP) + '.json', 'w') as f:
+            with open(str(IP) + 'VERSION_DETECTION.json', 'w') as f:
                 logging.warning('Saving results to file...')
                 f.write(json_object)
                 logging.warning('Finished with file writing...')
@@ -85,12 +88,23 @@ class Nwindow(customtkinter.CTk):
                 print(output)
 
     def os_detec(self, IP):
-        print('OS detection script running')
+        print('OS Detect script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
-        for data in results[str(IP)]["osmatch"]:
-            print("Name: " + data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%')
-        
+        if self.check_Var.get() == 'on':
+            print('Saving to file')
+            json_object = json.dumps(results[str(IP)]["osmatch"], indent=4)
+            with open(str(IP) + 'OS_DETECTION.json', 'w') as f:
+                f.write(json_object)
+                print('Done saving to file')
+                f.close()
+            for data in results[str(IP)]["osmatch"]:
+                print('Outputting to screen')
+                print("Name: " + data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%')
+        elif self.check_Var.get() == 'off':
+            print('Not attempting to file just outputting to screen')
+            for data in results[str(IP)]["osmatch"]:
+                print("Name: " + data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%')
     
 # ------------------ Namp window ----------------- #
 
