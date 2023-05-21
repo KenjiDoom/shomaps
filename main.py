@@ -5,7 +5,7 @@ from multiprocessing import Process
 from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
-import json
+import json, logging
 
 def check_API():
     global api_key
@@ -27,6 +27,7 @@ api_key = ''
 
 class Nwindow(customtkinter.CTk):
     IP = ''
+
     def __init__(self, IP):
         super().__init__()
         self.geometry('600x650')
@@ -55,22 +56,33 @@ class Nwindow(customtkinter.CTk):
         C3 = Button(self, text="Version detection", command=lambda: [self.version_detc(str(IP))])
         C3.place(x=200, y=550)
         
-        # Save results
-        C4 = customtkinter.CTkCheckBox(self, text="Save Results", command=lambda: [self.save_nmap_scan()])
+        # Save results checkbox
+        self.check_Var = customtkinter.StringVar(value="off") # This will determine if it's been checked.
+        C4 = customtkinter.CTkCheckBox(self, text="Save Results", command=lambda: [self.checkbox_event()], variable=self.check_Var, onvalue="on", offvalue="off")
         C4.place(x=200, y=590)
 
         self.resizable(False, False)
 
-    def save_nmap_scan(self):
-        pass
-
     def version_detc(self, IP):
-        print('Version detection scan running')
+        logging.warning('starting version detection scan!')
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
-        for data in results[str(IP)]['ports']:
-            output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-            print(output)
+        if self.check_Var.get() == 'on': 
+            json_object = json.dumps(results[str(IP)]['ports'], indent=4)
+            with open(str(IP) + '.json', 'w') as f:
+                logging.warning('Saving results to file...')
+                f.write(json_object)
+                logging.warning('Finished with file writing...')
+                f.close()
+            for data in results[str(IP)]['ports']:
+                logging.warning('Outputting results to console')
+                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
+                print(output)
+        elif self.check_Var.get() == 'off':
+            console.warning('Outputting to console without saving results')
+            for data in results[str(IP)]['ports']:
+                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
+                print(output)
 
     def os_detec(self, IP):
         print('OS detection script running')
@@ -151,7 +163,7 @@ def display_shodan_map(IP):
 def nmap_window(): # Nmap window
     P1 = Nwindow(IP_Entry.get())
     P1.mainloop()
-T1 = threading.Thread(target=nmap_window)
+T1 = threading.Thread(target=nmap_window, daemon=True)
 # ------------------------------- Main Window Bellow --------------------------------------------
 
 root = Tk()
