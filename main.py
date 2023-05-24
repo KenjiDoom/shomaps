@@ -67,44 +67,48 @@ class Nwindow(customtkinter.CTk):
         print('The checkbox has been clicked: ' + self.check_Var.get())
 
     def version_detc(self, IP):
-        logging.warning('starting version detection scan!')
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
         if self.check_Var.get() == 'on': 
+            output = ""
+            for data in results[str(IP)]['ports']:
+                output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
+                self.text_label.config(text=output)
+
             json_object = json.dumps(results[str(IP)]['ports'], indent=4)
             with open(str(IP) + 'VERSION_DETECTION.json', 'w') as f:
-                logging.warning('Saving results to file...')
+                print("Writing to file")
                 f.write(json_object)
-                logging.warning('Finished with file writing...')
                 f.close()
-            for data in results[str(IP)]['ports']:
-                logging.warning('Outputting results to console')
-                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-                print(output)
         elif self.check_Var.get() == 'off':
-            console.warning('Outputting to console without saving results')
+            output = ""
             for data in results[str(IP)]['ports']:
-                output = data['portid'] + ' ' + data['state'] + ' ' + data['service']['name']
-                print(output)
+                output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
+                self.text_label.config(text=output)
 
     def os_detec(self, IP):
         print('OS Detect script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
         if self.check_Var.get() == 'on':
-            print('Saving to file')
+            output = ""
+            for data in results[str(IP)]["osmatch"]:
+                print('Outputting to screen')
+                output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
+                self.text_label.config(text=output)
+
             json_object = json.dumps(results[str(IP)]["osmatch"], indent=4)
             with open(str(IP) + 'OS_DETECTION.json', 'w') as f:
                 f.write(json_object)
                 print('Done saving to file')
                 f.close()
+        elif self.check_Var.get() == 'off':
+            print('Normal scan without file saving')
+            output = ""
             for data in results[str(IP)]["osmatch"]:
                 print('Outputting to screen')
-                print("Name: " + data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%')
-        elif self.check_Var.get() == 'off':
-            print('Not attempting to file just outputting to screen')
-            for data in results[str(IP)]["osmatch"]:
-                print("Name: " + data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%')
+                output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
+                self.text_label.config(text=output)
     
 # ------------------ Namp window ----------------- #
 
