@@ -23,6 +23,14 @@ def check_API():
 global api_key
 api_key = ''
 
+# ------------------ More Information ------------$
+class moreInfo(customtkinter.CTk):
+    IP = ''
+    
+    def __init__(self, IP):
+        pass
+
+
 # ------------------ Namp window ----------------- #
 
 class Nwindow(customtkinter.CTk):
@@ -48,8 +56,8 @@ class Nwindow(customtkinter.CTk):
         C1 = Button(self, text='OS Detection', command=lambda: [self.os_detec(str(self.IP))])
         C1.place(x=50, y=550)
         
-        # Stealth scan button
-        C2 = Button(self, text='Stealth Scan', command=lambda: [self.stealth_scanning(str(self.IP))])
+        # Dns bruteforce
+        C2 = Button(self, text='DNS bruteforce', command=lambda: [self.dns_brute()])
         C2.place(x=50, y=590)
         
         # UDP scan button [Replacing UDP with version detection scan]
@@ -110,6 +118,30 @@ class Nwindow(customtkinter.CTk):
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
                 self.text_label.config(text=output)
     
+    def dns_brute(self):
+        # DNS bruteforce will have a pop up box prompting for the website name
+        target = simpledialog.askstring('Hostname', 'Enter website name:')
+        nmap = nmap3.Nmap()
+        results = nmap.nmap_dns_brute_script(target)
+        if self.check_Var.get() == 'on':
+            logging.warning('printing to screen')
+            output = ""
+            for data in results[0:10]:
+                output += data['hostname'] + '\n'
+                self.text_label.config(text=output)
+            logging.warning('Saving json to file')
+            json_object = json.dumps(results, indent=4)
+            with open(str(target) + 'DNS.json', 'w') as f:
+                logging.warning('Writing json to file')
+                f.write(json_object)
+                f.close()
+        elif self.check_Var() == 'off':
+            logging.warning('Normal scan without saving to file')
+            output = ""
+            for data in results[0:10]:
+                output += data['hostname'] + '\n'
+                self.text_label.config(text=output)
+
 # ------------------ Namp window ----------------- #
 
 
@@ -214,7 +246,7 @@ more_results.place(x=350, y=760)
 
 
 # Uncomment this code for program to work normally.
-#check_API()
-#api = shodan.Shodan(str(api_key))
+check_API()
+api = shodan.Shodan(str(api_key))
 root.resizable(False, False)
 root.mainloop()
