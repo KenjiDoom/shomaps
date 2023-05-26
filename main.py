@@ -28,7 +28,18 @@ class moreInfo(customtkinter.CTk):
     IP = ''
     
     def __init__(self, IP):
-        pass
+        super().__init__()
+        self.geometry('600x600')
+        self.title('More Information')
+
+        s = Separator(self, orient='horizontal')
+        s.place(x=400)
+
+        self.IP = IP
+
+        self.resizable(False, False)
+
+
 
 
 # ------------------ Namp window ----------------- #
@@ -213,7 +224,13 @@ def display_shodan_map(IP):
 def nmap_window(): # Nmap window
     P1 = Nwindow(IP_Entry.get())
     P1.mainloop()
+
+def window_more():
+    P2 = moreInfo(IP_Entry.get())
+    P2.mainloop()
+
 T1 = threading.Thread(target=nmap_window, daemon=True)
+T2 = threading.Thread(target=window_more, daemon=True)
 # ------------------------------- Main Window Bellow --------------------------------------------
 
 root = Tk()
@@ -241,7 +258,7 @@ search_button.place(x=980, y=775, anchor='center')
 scan_nmap = Button(master=root, text='Perform Nmap Scan', command=lambda:[T1.start()])
 scan_nmap.place(x=150, y=760)
 
-more_results = Button(master=root, text='More Information')
+more_results = Button(master=root, text='More Information', command=lambda:[T2.start()])
 more_results.place(x=350, y=760)
 
 
