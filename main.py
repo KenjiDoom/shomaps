@@ -31,17 +31,27 @@ class moreInfo(customtkinter.CTk):
         super().__init__()
         self.geometry('600x600')
         self.title('More Information')
-
-        s = Separator(self, orient='horizontal')
-        s.place(x=400)
-
+        
         self.IP = IP
+        
+        pd_windows = Panedwindow(master=self, orient='vertical')
+
+        # Frame windows
+        Panel1_CVE = LabelFrame(pd_windows, relief='flat', text='CVE Information', background='white')
+        Panel2_DNS = LabelFrame(pd_windows, relief='flat', text='DNS Information', background='white')
+        
+        # FRame windows extension
+        pd_windows.add(Panel1_CVE, weight=50)
+        pd_windows.add(Panel2_DNS, weight=50)
+        pd_windows.pack(fill='both', expand=True)
 
         self.resizable(False, False)
 
+    def dns_info(self, IP):
+        pass
 
-
-
+    def cve_info(self, IP):
+        pass
 # ------------------ Namp window ----------------- #
 
 class Nwindow(customtkinter.CTk):
