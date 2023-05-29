@@ -37,8 +37,8 @@ class moreInfo(customtkinter.CTk):
         pd_windows = Panedwindow(master=self, orient='vertical')
 
         # Frame windows
-        Panel1_CVE = LabelFrame(pd_windows, relief='flat', text='CVE Information', background='white')
-        Panel2_DNS = LabelFrame(pd_windows, relief='flat', text='DNS Information', background='white')
+        Panel1_CVE = LabelFrame(pd_windows, relief='flat', text='CVE Information: ' + self.IP, background='white')
+        Panel2_DNS = LabelFrame(pd_windows, relief='flat', text='DNS Information: ' + self.IP, background='white')
         
         # FRame windows extension
         pd_windows.add(Panel1_CVE, weight=50)
@@ -46,11 +46,19 @@ class moreInfo(customtkinter.CTk):
         pd_windows.pack(fill='both', expand=True)
 
         self.resizable(False, False)
-
-    def dns_info(self, IP):
-        pass
+        
 
     def cve_info(self, IP):
+        output = ""
+        host = api.host(str(IP))
+        for items in host['vulns']:
+            CVE = items.replace('!', '')
+            print(CVE)
+            print(len(CVE))
+            output += CVE + '\n'
+            self.cve_label.config(text=output)
+    
+    def dns_info(self, IP):
         pass
 # ------------------ Namp window ----------------- #
 
@@ -237,6 +245,7 @@ def nmap_window(): # Nmap window
 
 def window_more():
     P2 = moreInfo(IP_Entry.get())
+    P2.cve_info(IP_Entry.get())
     P2.mainloop()
 
 T1 = threading.Thread(target=nmap_window, daemon=True)
