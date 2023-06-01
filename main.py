@@ -56,8 +56,13 @@ class moreInfo(customtkinter.CTk):
         output = ""
         host = api.host(str(IP))
         for items in host['vulns']:
-            CVE = items.replace('!', '')
-            output += CVE + '\n'
+            outputs = output + items.replace('!', '') + ""
+            #output.append(str(items.replace('!', '')))
+            print(outputs)
+            print(len(outputs))
+            #output += CVE + '\n'
+        
+            CVE_DATA = vulners_api.get_multiple_bulletins([outputs])
             self.cve_label.config(text=output)
     
     def dns_info(self, IP):
