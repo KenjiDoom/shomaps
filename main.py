@@ -5,7 +5,7 @@ from multiprocessing import Process
 from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
-import json, logging
+import json, logging, vulners
 
 def check_API():
     global api_key
@@ -40,6 +40,9 @@ class moreInfo(customtkinter.CTk):
         Panel1_CVE = LabelFrame(pd_windows, relief='flat', text='CVE Information: ' + self.IP, background='white')
         Panel2_DNS = LabelFrame(pd_windows, relief='flat', text='DNS Information: ' + self.IP, background='white')
         
+        self.cve_label = Label(master=Panel1_CVE, text='', background='white')
+        self.cve_label.place(y=50, x=50)
+
         # FRame windows extension
         pd_windows.add(Panel1_CVE, weight=50)
         pd_windows.add(Panel2_DNS, weight=50)
@@ -49,12 +52,11 @@ class moreInfo(customtkinter.CTk):
         
 
     def cve_info(self, IP):
+        vulners_api = vulners.VulnersApi(api_key="")
         output = ""
         host = api.host(str(IP))
         for items in host['vulns']:
             CVE = items.replace('!', '')
-            print(CVE)
-            print(len(CVE))
             output += CVE + '\n'
             self.cve_label.config(text=output)
     
