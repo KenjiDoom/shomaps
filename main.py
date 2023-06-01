@@ -6,6 +6,7 @@ from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
 import json, logging, vulners
+import dns.resolver
 
 def check_API():
     global api_key
@@ -66,7 +67,11 @@ class moreInfo(customtkinter.CTk):
             self.cve_label.config(text=output)
     
     def dns_info(self, IP):
-        pass
+        name = 'nmap.org'
+        for qtype in 'A', 'AAAA', 'MX', 'NS':
+            answer = dns.resolver.resolve(name, qtype, raise_on_no_answer=False)
+            if answer.rrset is not None:
+                print(answer.rrset)
 # ------------------ Namp window ----------------- #
 
 class Nwindow(customtkinter.CTk):
@@ -252,7 +257,8 @@ def nmap_window(): # Nmap window
 
 def window_more():
     P2 = moreInfo(IP_Entry.get())
-    P2.cve_info(IP_Entry.get())
+    #P2.cve_info(IP_Entry.get())
+    P2.dns_info()
     P2.mainloop()
 
 T1 = threading.Thread(target=nmap_window, daemon=True)
