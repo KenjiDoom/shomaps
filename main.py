@@ -41,8 +41,13 @@ class moreInfo(customtkinter.CTk):
         Panel1_CVE = LabelFrame(pd_windows, relief='flat', text='CVE Information: ' + self.IP, background='white')
         Panel2_DNS = LabelFrame(pd_windows, relief='flat', text='DNS Information: ' + self.IP, background='white')
         
+        # CVE Label
         self.cve_label = Label(master=Panel1_CVE, text='', background='white')
         self.cve_label.place(y=50, x=50)
+
+        # DNS Label
+        self.dns_label = Label(master=Panel2_DNS, text='', background='white')
+        self.dns_label.place(x=50, y=50)
 
         # FRame windows extension
         pd_windows.add(Panel1_CVE, weight=50)
@@ -66,12 +71,14 @@ class moreInfo(customtkinter.CTk):
             CVE_DATA = vulners_api.get_multiple_bulletins([outputs])
             self.cve_label.config(text=output)
     
-    def dns_info(self, IP):
+    def dns_info(self):
         name = 'nmap.org'
         for qtype in 'A', 'AAAA', 'MX', 'NS':
             answer = dns.resolver.resolve(name, qtype, raise_on_no_answer=False)
             if answer.rrset is not None:
-                print(answer.rrset)
+                output = str(answer.rrset) + '\n'
+                self.dns_label.config(text=output)
+
 # ------------------ Namp window ----------------- #
 
 class Nwindow(customtkinter.CTk):
