@@ -6,7 +6,7 @@ from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
 import json, logging, vulners
-import dns.resolver
+import dns.resolver, socket
 
 def check_API():
     global api_key
@@ -72,7 +72,8 @@ class moreInfo(customtkinter.CTk):
             self.cve_label.config(text=output)
     
     def dns_info(self):
-        name = 'nmap.org'
+        data = socket.gethostbyaddr(self.IP)
+        domain_name = data[0]
         for qtype in 'A', 'AAAA', 'MX', 'NS':
             answer = dns.resolver.resolve(name, qtype, raise_on_no_answer=False)
             if answer.rrset is not None:
