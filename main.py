@@ -72,13 +72,26 @@ class moreInfo(customtkinter.CTk):
             self.cve_label.config(text=output)
     
     def dns_info(self):
+        def enum_code(domain):
+            try:
+               for qtype in 'A', 'AAAA', 'MX', 'NS', 'PTR':
+                   answer = dns.resolver.resolve(domain, qtype, raise_on_no_answer=False)
+                   if answer.rrset is not None:
+                       output = str(answer.rrset) + '\n'
+                       self.dns_label.config(text=output)
+                       print(output)
+            except dns.resolver.NXDOMAIN:
+               print('The domain entered doesnt exist, enter your own maunaly') 
+        
         data = socket.gethostbyaddr(self.IP)
         domain_name = data[0]
-        for qtype in 'A', 'AAAA', 'MX', 'NS':
-            answer = dns.resolver.resolve(name, qtype, raise_on_no_answer=False)
-            if answer.rrset is not None:
-                output = str(answer.rrset) + '\n'
-                self.dns_label.config(text=output)
+        popup = messagebox.askquestion(title='Right or wrong?', message=f"Is this the right domain? {domain_name}")
+        if popup == 'yes':
+            enum_code(domain_name) 
+        elif popup == 'no':
+            target = customtkinter.CTkInputDialog(text='Enter domain name:', title='Domain')
+            domain = target.get_input()
+            enum_code(domain)
 
 # ------------------ Namp window ----------------- #
 
