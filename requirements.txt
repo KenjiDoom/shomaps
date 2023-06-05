@@ -1,0 +1,7 @@
+shodan
+python3-nmap
+tkintermapview
+dotenv
+vulners
+dnspython
+python-dotenv
