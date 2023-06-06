@@ -6,13 +6,19 @@ from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
 import json, logging, vulners
-import dns.resolver, socket
+import dns.resolver, socket, re
 
 def check_API():
     global api_key
+    def prompt_user():
+        pass
     if os.path.exists('.env'):
         secrets = dotenv_values('.env')
-        api_key = str(secrets['API_KEY'])
+        api_data  = bool(re.search(r'\d', str(secrets['API_KEY'])))
+        if api_data == True:
+            print(f'Working {api_data}')
+        elif api_data == False:
+            dialog = simpledialog.askstring('Input', 'Enter Shodan API Key:')
     else:
         dialog = simpledialog.askstring('Input', 'Enter Shodan API key:')
         with open('.env', 'w') as f:
@@ -54,8 +60,7 @@ class moreInfo(customtkinter.CTk):
         pd_windows.add(Panel2_DNS, weight=50)
         pd_windows.pack(fill='both', expand=True)
 
-        self.resizable(False, False)
-        
+        self.resizable(False, False)    
 
     def cve_info(self, IP):
         vulners_api = vulners.VulnersApi(api_key="")
