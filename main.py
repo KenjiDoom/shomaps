@@ -10,20 +10,25 @@ import dns.resolver, socket, re
 
 def check_API():
     global api_key
+
     def prompt_user():
-        pass
+        print('Enter the API')
+        dialog = customtkinter.CTkInputDialog(title='Input', text='Enter shodan api key:')
+        data = dialog.get_input()
+        with open('.env', 'w') as f:
+            f.write('API_KEY=' + str(data))
+            f.close()
+
     if os.path.exists('.env'):
         secrets = dotenv_values('.env')
         api_data  = bool(re.search(r'\d', str(secrets['API_KEY'])))
         if api_data == True:
-            print(f'Working {api_data}')
+            secrets = dotenv_values('.env')
+            api_key = str(secrets['API_KEY'])
         elif api_data == False:
-            dialog = simpledialog.askstring('Input', 'Enter Shodan API Key:')
+            prompt_user()
     else:
-        dialog = simpledialog.askstring('Input', 'Enter Shodan API key:')
-        with open('.env', 'w') as f:
-            f.write('API_KEY=' + str(dialog))
-            f.close()
+        prompt_user()
         secrets = dotenv_values('.env')
         api_key = str(secrets['API_KEY'])
 
