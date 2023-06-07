@@ -123,6 +123,12 @@ class Nwindow(customtkinter.CTk):
 
         self.text_label = Label(master=self.frame, width=50, text='Empty')
         self.text_label.place(x=50, y=50)
+        
+        # Save results checkbox
+        self.check_Var = customtkinter.StringVar(value="off") # This will determine if it's been checked.
+        
+        C4 = customtkinter.CTkCheckBox(self, text="Save Results", command=lambda: [self.checkbox_event()], variable=self.check_Var, onvalue="on", offvalue="off")
+        C4.place(x=200, y=590)
 
         # OS detection scan
         C1 = Button(self, text='OS Detection', command=lambda: [self.os_detec(str(self.IP))])
@@ -135,11 +141,6 @@ class Nwindow(customtkinter.CTk):
         # UDP scan button [Replacing UDP with version detection scan]
         C3 = Button(self, text="Version detection", command=lambda: [self.version_detc(str(IP))])
         C3.place(x=200, y=550)
-        
-        # Save results checkbox
-        self.check_Var = customtkinter.StringVar(value="off") # This will determine if it's been checked.
-        C4 = customtkinter.CTkCheckBox(self, text="Save Results", command=lambda: [self.checkbox_event()], variable=self.check_Var, onvalue="on", offvalue="off")
-        C4.place(x=200, y=590)
 
         self.resizable(False, False)
 
@@ -191,28 +192,27 @@ class Nwindow(customtkinter.CTk):
                 self.text_label.config(text=output)
     
     def dns_brute(self):
-        # DNS bruteforce will have a pop up box prompting for the website name
-        target = simpledialog.askstring('Hostname', 'Enter website name:')
+        data = customtkinter.CTkInputDialog(text='Enter the domain name', title='Domain')
+        target = data.get_input()
         nmap = nmap3.Nmap()
         results = nmap.nmap_dns_brute_script(target)
         if self.check_Var.get() == 'on':
-            logging.warning('printing to screen')
             output = ""
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
                 self.text_label.config(text=output)
-            logging.warning('Saving json to file')
             json_object = json.dumps(results, indent=4)
             with open(str(target) + 'DNS.json', 'w') as f:
-                logging.warning('Writing json to file')
+                print('Writing to files')
                 f.write(json_object)
                 f.close()
-        elif self.check_Var() == 'off':
-            logging.warning('Normal scan without saving to file')
+        elif self.check_Var.get() == 'off':
             output = ""
+            print('Scanning without saving...')
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
                 self.text_label.config(text=output)
+# Side-note: Write a function to do all the file writing instead duplicating all the code...
 
 # ------------------ Namp window ----------------- #
 
@@ -288,7 +288,7 @@ def nmap_window(): # Nmap window
 
 def window_more():
     P2 = moreInfo(IP_Entry.get())
-    #P2.cve_info(IP_Entry.get())
+    P2.cve_info(IP_Entry.get())
     P2.dns_info()
     P2.mainloop()
 
