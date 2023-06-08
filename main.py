@@ -1,4 +1,4 @@
-import shodan, nmap3, tkintermapview, customtkinter, threading, time, os
+import shodan, nmap3, tkintermapview, customtkinter, threading, time, os, sys
 from tkinter import IntVar, Checkbutton, Button, Label, Frame, Scrollbar
 from tkinter import messagebox, simpledialog
 from multiprocessing import Process
@@ -7,6 +7,12 @@ from tkinter.ttk import *
 from tkinter import *
 import json, logging, vulners
 import dns.resolver, socket, re
+
+def check_Root():
+    if os.geteuid() == 0:
+        print('Running as root ✔️')
+    else:
+        sys.exit('Must run script as root user, to allow nmap functions to work')
 
 def check_API():
     global api_key
@@ -68,6 +74,7 @@ class moreInfo(customtkinter.CTk):
         self.resizable(False, False)    
 
     def cve_info(self, IP):
+        # This needs to be fixed, NEEDS a new API
         vulners_api = vulners.VulnersApi(api_key="")
         output = ""
         host = api.host(str(IP))
@@ -168,16 +175,16 @@ class Nwindow(customtkinter.CTk):
                 self.text_label.config(text=output)
 
     def os_detec(self, IP):
+        # THIS MUST BE RAN AS ROOT, IN ORDER TO PREVENT ERROR
         print('OS Detect script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
         if self.check_Var.get() == 'on':
             output = ""
-            for data in results[str(IP)]["osmatch"]:
+            for data in results[str(self.IP)]["osmatch"]:
                 print('Outputting to screen')
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
                 self.text_label.config(text=output)
-
             json_object = json.dumps(results[str(IP)]["osmatch"], indent=4)
             with open(str(IP) + 'OS_DETECTION.json', 'w') as f:
                 f.write(json_object)
@@ -186,7 +193,7 @@ class Nwindow(customtkinter.CTk):
         elif self.check_Var.get() == 'off':
             print('Normal scan without file saving')
             output = ""
-            for data in results[str(IP)]["osmatch"]:
+            for data in results[str(self.IP)]["osmatch"]:
                 print('Outputting to screen')
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
                 self.text_label.config(text=output)
@@ -327,6 +334,7 @@ more_results.place(x=350, y=760)
 
 # Uncomment this code for program to work normally.
 check_API()
+check_Root()
 api = shodan.Shodan(str(api_key))
 root.resizable(False, False)
 root.mainloop()
