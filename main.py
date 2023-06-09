@@ -162,12 +162,7 @@ class Nwindow(customtkinter.CTk):
             for data in results[str(IP)]['ports']:
                 output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
                 self.text_label.config(text=output)
-
-            json_object = json.dumps(results[str(IP)]['ports'], indent=4)
-            with open(str(IP) + 'VERSION_DETECTION.json', 'w') as f:
-                print("Writing to file")
-                f.write(json_object)
-                f.close()
+            self.save_json_data(IP, results, 'version_detection')
         elif self.check_Var.get() == 'off':
             output = ""
             for data in results[str(IP)]['ports']:
@@ -175,23 +170,16 @@ class Nwindow(customtkinter.CTk):
                 self.text_label.config(text=output)
 
     def os_detec(self, IP):
-        # THIS MUST BE RAN AS ROOT, IN ORDER TO PREVENT ERROR
         print('OS Detect script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
         if self.check_Var.get() == 'on':
             output = ""
             for data in results[str(self.IP)]["osmatch"]:
-                print('Outputting to screen')
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
                 self.text_label.config(text=output)
-            json_object = json.dumps(results[str(IP)]["osmatch"], indent=4)
-            with open(str(IP) + 'OS_DETECTION.json', 'w') as f:
-                f.write(json_object)
-                print('Done saving to file')
-                f.close()
+            self.save_json_data(IP, results, 'os_detection')
         elif self.check_Var.get() == 'off':
-            print('Normal scan without file saving')
             output = ""
             for data in results[str(self.IP)]["osmatch"]:
                 print('Outputting to screen')
@@ -208,17 +196,20 @@ class Nwindow(customtkinter.CTk):
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
                 self.text_label.config(text=output)
-            json_object = json.dumps(results, indent=4)
-            with open(str(target) + 'DNS.json', 'w') as f:
-                print('Writing to files')
-                f.write(json_object)
-                f.close()
+            self.save_json_data(target, results, 'dns-bruteforce.json')
         elif self.check_Var.get() == 'off':
             output = ""
             print('Scanning without saving...')
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
                 self.text_label.config(text=output)
+
+    def save_json_data(self, IP, data, scan_type):
+        json_object = json.dumps(data, indent=4)
+        print('Saving to file...')
+        with open(str(IP) + scan_type + '.json', 'w') as f:
+            f.write(json_object)
+            f.close()
 # Side-note: Write a function to do all the file writing instead duplicating all the code...
 
 # ------------------ Namp window ----------------- #
