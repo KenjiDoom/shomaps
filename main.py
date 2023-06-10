@@ -322,10 +322,14 @@ scan_nmap.place(x=150, y=760)
 more_results = Button(master=root, text='More Information', command=lambda:[T2.start()])
 more_results.place(x=350, y=760)
 
+def close_window():
+    print('You clicked the Exit button')
+    sys.exit("Closing window")
 
-# Uncomment this code for program to work normally.
-check_API()
-check_Root()
-api = shodan.Shodan(str(api_key))
-root.resizable(False, False)
-root.mainloop()
+if __name__ == '__main__':
+    check_Root()
+    check_API()
+    api = shodan.Shodan(str(api_key))
+    root.protocol("WM_DELETE_WINDOW", close_window)
+    root.resizable(False, False)
+    root.mainloop()
