@@ -74,18 +74,13 @@ class moreInfo(customtkinter.CTk):
         self.resizable(False, False)    
 
     def cve_info(self, IP):
-        # This needs to be fixed, NEEDS a new API
-        vulners_api = vulners.VulnersApi(api_key="")
         output = ""
         host = api.host(str(IP))
-        for items in host['vulns']:
-            outputs = output + items.replace('!', '') + ""
-            #output.append(str(items.replace('!', '')))
-            print(outputs)
-            print(len(outputs))
-            #output += CVE + '\n'
-        
-            CVE_DATA = vulners_api.get_multiple_bulletins([outputs])
+        print(host['vulns'][0:5])
+        for items in host['vulns'][0:5]:
+            response = requests.get(f'http://api.cvesearch.com/search?q={items}')
+            data = response.json()
+            print("CVE_NAME: " + str(items) + data['response'][str(items).lower()]['basic']['description'])
             self.cve_label.config(text=output)
     
     def dns_info(self):
