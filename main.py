@@ -76,12 +76,12 @@ class moreInfo(customtkinter.CTk):
     def cve_info(self, IP):
         output = ""
         host = api.host(str(IP))
-        print(host['vulns'][0:5])
         for items in host['vulns'][0:5]:
             response = requests.get(f'http://api.cvesearch.com/search?q={items}')
             data = response.json()
             print("CVE_NAME: " + str(items) + data['response'][str(items).lower()]['basic']['description'])
-            self.cve_label.config(text=output)
+            output = str(items) + " " +  data['response'][str(items).lower()]['basic']['description'] + '\n'
+            self.cve_text.insert(END, output)
     
     def dns_info(self):
         def enum_code(domain):
