@@ -1,12 +1,11 @@
-import shodan, nmap3, tkintermapview, customtkinter, threading, time, os, sys
-from tkinter import IntVar, Checkbutton, Button, Label, Frame, Scrollbar
-from tkinter import messagebox, simpledialog
+import shodan, nmap3, tkintermapview, customtkinter, threading, time, os, sys, dns.resolver, socket, re, json, logging, requests, asyncio, aiohttp
+from tkinter import IntVar, Checkbutton, Button, Label, Frame, Scrollbar, messagebox, simpledialog
 from multiprocessing import Process
 from dotenv import dotenv_values
 from tkinter.ttk import *
 from tkinter import *
-import json, logging, vulners
-import dns.resolver, socket, re
+
+from concurrent.futures import ThreadPoolExecutor
 
 def check_Root():
     if os.geteuid() == 0:
@@ -71,17 +70,34 @@ class moreInfo(customtkinter.CTk):
         pd_windows.add(Panel2_DNS, weight=50)
         pd_windows.pack(fill='both', expand=True)
 
-        self.resizable(False, False)    
+        self.resizable(False, False)
+    
+    async def fetch_multiple(self, session, urls):
+        print('Fetch Multiple is running')
+        tasks = [self.fetch(session, url) for url in urls]
+        responses = await asyncio.gather(*tasks)
+        return responses
 
-    def cve_info(self, IP):
+    async def fetch(self, session, url):
+        print('Fetch is running')
+        async with session.get(url) as response:
+            return await response.json()
+
+    async def cve_info(self, IP):
+        # To-do: Implement threading to speed up the process of api requests
         output = ""
         host = api.host(str(IP))
-        for items in host['vulns'][0:5]:
-            response = requests.get(f'http://api.cvesearch.com/search?q={items}')
-            data = response.json()
-            print("CVE_NAME: " + str(items) + data['response'][str(items).lower()]['basic']['description'])
-            output = str(items) + " " +  data['response'][str(items).lower()]['basic']['description'] + '\n'
-            self.cve_text.insert(END, output)
+        cve_names = [cve for cve in host['vulns']]
+        print(cve_names)
+        urls = ['http://api.cvesearch.com/search?q=' + item for item in cve_names]
+        print(urls)
+
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=None)) as session:
+            responses = await self.fetch_multiple(session, urls)
+            for response in responses:
+                print(response['response'])
+            #output = str(items) + " " +  data['response'][str(items).lower()]['basic']['description'] + '\n'
+            #self.cve_text.insert(END, output)
     
     def dns_info(self):
         def enum_code(domain):
@@ -280,9 +296,13 @@ def nmap_window(): # Nmap window
     P1.mainloop()
 
 def window_more():
-    P2 = moreInfo(IP_Entry.get())
-    P2.cve_info(IP_Entry.get())
-    P2.dns_info()
+    IP = IP_Entry.get()
+    P2 = moreInfo(IP)
+    start_time = time.time()
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(P2.cve_info(IP))
+    print("--- %s seconds ---" % (time.time() - start_time))
+    #P2.dns_info()
     P2.mainloop()
 
 T1 = threading.Thread(target=nmap_window, daemon=True)
