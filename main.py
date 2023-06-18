@@ -88,7 +88,7 @@ class moreInfo(customtkinter.CTk):
             return await response.json()
 
     async def cve_info(self, IP):
-        output = ""
+        output = []
         response_data = []
         host = api.host(str(IP))
         cve_names = [cve for cve in host['vulns'][0:5]] # Limit to only 5 searches (5 cves)
@@ -100,11 +100,11 @@ class moreInfo(customtkinter.CTk):
                 response_data = response
                 for cve in cve_names:
                     try:
-                        print(response_data['response'][str(cve).lower()]['basic']['description'])
-                        output = response_data['response'][str(cve).lower()]['basic']['description']
+                        print(str(cve) + response_data['response'][str(cve).lower()]['basic']['description'] + '\n') 
+                        output.append(str(cve) + str(response_data['response'][str(cve).lower()]['basic']['description']) + '\n')
                     except KeyError:
-                        print('Key was not found: ' + cve.lower())
-            self.cve_text.insert(END, output)
+                        pass
+            self.cve_text.insert(END, str(output))
     
     def dns_info(self):
         def enum_code(domain):
