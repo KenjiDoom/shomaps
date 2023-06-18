@@ -58,9 +58,13 @@ class moreInfo(customtkinter.CTk):
         Panel2_DNS = LabelFrame(pd_windows, relief='flat', text='DNS Information: ' + self.IP, background='white')
         
         # CVE Label
-        self.cve_label = Label(master=Panel1_CVE, text='', background='white')
-        self.cve_label.place(y=50, x=50)
+        #self.cve_label = Label(master=Panel1_CVE, text='', background='white')
+        #self.cve_label.place(y=50, x=50)
 
+        # CVE Text
+        self.cve_text = Text(master=Panel1_CVE, background='white')
+        self.cve_text.place(x=20, y=20)
+        
         # DNS Label
         self.dns_label = Label(master=Panel2_DNS, text='', background='white')
         self.dns_label.place(x=50, y=50)
@@ -84,20 +88,23 @@ class moreInfo(customtkinter.CTk):
             return await response.json()
 
     async def cve_info(self, IP):
-        # To-do: Implement threading to speed up the process of api requests
         output = ""
+        response_data = []
         host = api.host(str(IP))
-        cve_names = [cve for cve in host['vulns']]
-        print(cve_names)
+        cve_names = [cve for cve in host['vulns'][0:5]] # Limit to only 5 searches (5 cves)
         urls = ['http://api.cvesearch.com/search?q=' + item for item in cve_names]
-        print(urls)
 
         async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=None)) as session:
             responses = await self.fetch_multiple(session, urls)
-            for response in responses:
-                print(response['response'])
-            #output = str(items) + " " +  data['response'][str(items).lower()]['basic']['description'] + '\n'
-            #self.cve_text.insert(END, output)
+            for response in responses: # this is being converted into a dict.
+                response_data = response
+                for cve in cve_names:
+                    try:
+                        print(response_data['response'][str(cve).lower()]['basic']['description'])
+                        output = response_data['response'][str(cve).lower()]['basic']['description']
+                    except KeyError:
+                        print('Key was not found: ' + cve.lower())
+            self.cve_text.insert(END, output)
     
     def dns_info(self):
         def enum_code(domain):
