@@ -56,10 +56,6 @@ class moreInfo(customtkinter.CTk):
         # Frame windows
         Panel1_CVE = LabelFrame(pd_windows, relief='flat', text='CVE Information: ' + self.IP, background='white')
         Panel2_DNS = LabelFrame(pd_windows, relief='flat', text='DNS Information: ' + self.IP, background='white')
-        
-        # CVE Label
-        #self.cve_label = Label(master=Panel1_CVE, text='', background='white')
-        #self.cve_label.place(y=50, x=50)
 
         # CVE Text
         self.cve_text = Text(master=Panel1_CVE, background='white')
@@ -104,7 +100,7 @@ class moreInfo(customtkinter.CTk):
                         output.append(str(cve) + str(response_data['response'][str(cve).lower()]['basic']['description']) + '\n')
                     except KeyError:
                         pass
-            self.cve_text.insert(END, str(output))
+            self.cve_text.insert(END, ''.join(output))
     
     def dns_info(self):
         def enum_code(domain):
