@@ -58,7 +58,7 @@ class Nwindow(customtkinter.CTk):
 
         self.text_label = Label(master=self.frame, width=50, text='Empty')
         self.text_label.place(x=50, y=50)
-        
+       
         # Save results checkbox
         self.check_Var = customtkinter.StringVar(value="off") # This will determine if it's been checked.
         
@@ -144,8 +144,8 @@ class Nwindow(customtkinter.CTk):
 # ------------------ Shodan Search Function ---------------------#
 
 def loading_bar(IP):
-    progress = Progressbar(root, mode="determinate", length=150)
-    progress.place(x=820, y=765)
+    progress = customtkinter.CTkProgressBar(root, mode="determinate", orientation="horizontal", progress_color='green', fg_color='white', width=120)
+    progress.place(x=830, y=765)
     progress['value'] = 50
     progress.update_idletasks()
     time.sleep(1)
@@ -247,15 +247,14 @@ T1 = threading.Thread(target=nmap_window, daemon=True)
 # ------------------------------- Main Window Bellow --------------------------------------------
 
 root = Tk()
-print('Main window running')
 root.geometry("1000x800")
 root.title("Shomaps")
 fpack = ("MS Serif", 20)
 
 # Framed windows
 pw_windows = Panedwindow(root, orient='horizontal')
-Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", background='white', height=440)
-Panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat', background='white')
+Panel1_results = LabelFrame(pw_windows, font=fpack, relief='flat', text="General Information", foreground='#62ff00', background='#515b66', height=440)
+Panel2_maps = LabelFrame(pw_windows, font=fpack, text="Map", relief='flat',  foreground='#62ff00', background='#515b66')
 
 # Frame windows extension
 pw_windows.add(Panel1_results, weight=50)
@@ -264,7 +263,7 @@ pw_windows.pack(fill='both', expand=False)
 
 # Veritcal frame windows - More information window
 pg_windows = Panedwindow(root, orient='vertical')
-Panel3_information = LabelFrame(pg_windows, font=fpack, text="More Information", relief='flat', background='white', height=350)
+Panel3_information = LabelFrame(pg_windows, font=fpack, text="More Information", relief='flat', foreground='#62ff00', background='#515b66', height=350)
 pg_windows.add(Panel3_information, weight=50)
 pg_windows.pack(side=BOTTOM, fill='x', expand=False)
 
@@ -273,11 +272,11 @@ IP_Entry = Entry(master=root, text="Enter IP Address", width=30)
 IP_Entry.place(x=540, y=775, anchor='center')
 
 # Search button
-search_button = Button(master=root, text='Shodan Search', command=lambda:[loading_bar(IP_Entry.get()), display_shodan_map(IP_Entry.get())])
+search_button = customtkinter.CTkButton(master=root, fg_color='green', text='Shodan Search', command=lambda:[loading_bar(IP_Entry.get()), display_shodan_map(IP_Entry.get())])
 search_button.place(x=750, y=775, anchor='center')
 
 # Namp scan button
-scan_nmap = Button(master=root, text='Perform Nmap Scan', command=lambda:[T1.start()])
+scan_nmap = customtkinter.CTkButton(master=root, fg_color='green', text='Perform Nmap Scan', command=lambda:[T1.start()])
 scan_nmap.place(x=250, y=760)
 
 def close_window():
@@ -288,6 +287,7 @@ if __name__ == '__main__':
     check_Root()
     check_API()
     api = shodan.Shodan(str(api_key))
+    root.configure(background='white')
     root.protocol("WM_DELETE_WINDOW", close_window)
     root.resizable(False, False)
     root.mainloop()
