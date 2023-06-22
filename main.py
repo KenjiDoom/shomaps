@@ -50,33 +50,38 @@ class Nwindow(customtkinter.CTk):
 
         self.IP = IP
 
-        self.frame = Frame(master=self, width=500, height=500, background='white')
-        self.frame.place(x=50, y=10)
+        self.frame_background_highlight = customtkinter.CTkFrame(master=self, width=520, height=510, fg_color='white')
+        self.frame_background_highlight.place(x=40, y=5)
         
-        self.scroll = Scrollbar(self.frame)
-        self.scroll.place(x=470, y=10, height=485, width=20)
+        self.frame = customtkinter.CTkFrame(master=self, width=500, height=500, fg_color='#515b66')
+        self.frame.place(x=50, y=10)
 
-        self.text_label = Label(master=self.frame, width=50, text='Empty')
-        self.text_label.place(x=50, y=50)
-       
-        # Save results checkbox
+        # Text box
+        fpack = ("MS Serif", 20)
+        self.text = customtkinter.CTkTextbox(master=self.frame,)
+        self.text.pack()
+        self.text.configure(font=fpack, fg_color='white', text_color='black', width=500, height=500)
+
+        # Save results checkbox value
         self.check_Var = customtkinter.StringVar(value="off") # This will determine if it's been checked.
         
-        C4 = customtkinter.CTkCheckBox(self, text="Save Results", command=lambda: [self.checkbox_event()], variable=self.check_Var, onvalue="on", offvalue="off")
+        # Check box
+        C4 = customtkinter.CTkCheckBox(self, hover_color='green', fg_color='green',border_color='white', text_color='white', checkmark_color='white', text="Save Results", command=lambda: [self.checkbox_event()], variable=self.check_Var, onvalue="on", offvalue="off")
         C4.place(x=200, y=590)
 
         # OS detection scan
-        C1 = Button(self, text='OS Detection', command=lambda: [self.os_detec(str(self.IP))])
+        C1 = customtkinter.CTkButton(self, hover_color='red', fg_color='green', text='OS Detection', command=lambda: [self.os_detec(str(self.IP))])
         C1.place(x=50, y=550)
         
-        # Dns bruteforce
-        C2 = Button(self, text='DNS bruteforce', command=lambda: [self.dns_brute()])
+        # DNS bruteforce
+        C2 = customtkinter.CTkButton(self, hover_color='red', fg_color='green', text='DNS bruteforce', command=lambda: [self.dns_brute()])
         C2.place(x=50, y=590)
         
         # UDP scan button [Replacing UDP with version detection scan]
-        C3 = Button(self, text="Version detection", command=lambda: [self.version_detc(str(IP))])
+        C3 = customtkinter.CTkButton(self, hover_color='red', fg_color='green', text="Version detection", command=lambda: [self.version_detc(str(IP))])
         C3.place(x=200, y=550)
-
+        
+        self.configure(fg_color='#515b66')
         self.resizable(False, False)
 
     def checkbox_event(self):
@@ -89,13 +94,13 @@ class Nwindow(customtkinter.CTk):
             output = ""
             for data in results[str(IP)]['ports']:
                 output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
-                self.text_label.config(text=output)
+                self.text.insert("0.0", output)
             self.save_json_data(IP, results, 'version_detection')
         elif self.check_Var.get() == 'off':
             output = ""
             for data in results[str(IP)]['ports']:
                 output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
-                self.text_label.config(text=output)
+            self.text.insert("0.0", output)
 
     def os_detec(self, IP):
         print('OS Detect script running')
@@ -105,14 +110,14 @@ class Nwindow(customtkinter.CTk):
             output = ""
             for data in results[str(self.IP)]["osmatch"]:
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
-                self.text_label.config(text=output)
+            self.text.insert("0.0", output)
             self.save_json_data(IP, results, 'os_detection')
         elif self.check_Var.get() == 'off':
             output = ""
             for data in results[str(self.IP)]["osmatch"]:
                 print('Outputting to screen')
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
-                self.text_label.config(text=output)
+            self.text.insert("0.0", output)
     
     def dns_brute(self):
         data = customtkinter.CTkInputDialog(text='Enter the domain name', title='Domain')
@@ -123,14 +128,14 @@ class Nwindow(customtkinter.CTk):
             output = ""
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
-                self.text_label.config(text=output)
+            self.text.insert("0.0", output)
             self.save_json_data(target, results, 'dns-bruteforce.json')
         elif self.check_Var.get() == 'off':
             output = ""
             print('Scanning without saving...')
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
-                self.text_label.config(text=output)
+            self.text.insert("0.0", output)
 
     def save_json_data(self, IP, data, scan_type):
         json_object = json.dumps(data, indent=4)
@@ -243,7 +248,7 @@ def display_shodan_map(IP):
 def nmap_window(): # Nmap window
     P1 = Nwindow(IP_Entry.get())
     P1.mainloop()
-T1 = threading.Thread(target=nmap_window, daemon=True)  
+T1 = threading.Thread(target=nmap_window, daemon=True)
 # ------------------------------- Main Window Bellow --------------------------------------------
 
 root = Tk()
@@ -272,11 +277,11 @@ IP_Entry = Entry(master=root, text="Enter IP Address", width=30)
 IP_Entry.place(x=540, y=775, anchor='center')
 
 # Search button
-search_button = customtkinter.CTkButton(master=root, fg_color='green', text='Shodan Search', command=lambda:[loading_bar(IP_Entry.get()), display_shodan_map(IP_Entry.get())])
+search_button = customtkinter.CTkButton(master=root, hover_color='red', fg_color='green', text='Shodan Search', command=lambda:[loading_bar(IP_Entry.get()), display_shodan_map(IP_Entry.get())])
 search_button.place(x=750, y=775, anchor='center')
 
 # Namp scan button
-scan_nmap = customtkinter.CTkButton(master=root, fg_color='green', text='Perform Nmap Scan', command=lambda:[T1.start()])
+scan_nmap = customtkinter.CTkButton(master=root, hover_color='red', fg_color='green', text='Perform Nmap Scan', command=lambda:[T1.start()])
 scan_nmap.place(x=250, y=760)
 
 def close_window():
@@ -284,10 +289,10 @@ def close_window():
     sys.exit("Closing window")
 
 if __name__ == '__main__':
-    check_Root()
-    check_API()
-    api = shodan.Shodan(str(api_key))
-    root.configure(background='white')
-    root.protocol("WM_DELETE_WINDOW", close_window)
-    root.resizable(False, False)
-    root.mainloop()
+     check_Root()
+     check_API()
+     api = shodan.Shodan(str(api_key))
+     root.configure(background='white')
+     root.protocol("WM_DELETE_WINDOW", close_window)
+     root.resizable(False, False)
+     root.mainloop()
