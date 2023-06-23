@@ -40,109 +40,100 @@ api_key = ''
    
 # ------------------ Namp window ----------------- #
 
-class Nwindow(customtkinter.CTk):
-    IP = ''
+def nmap_window():
+    window = Toplevel(root, background='#515b66')
+    window.title('Nmap Window')
+    window.geometry('600x650')
+    window.resizable(False, False)
 
-    def __init__(self, IP):
-        super().__init__()
-        self.geometry('600x650')
-        self.title('Nmap Window')
+    frame_background_highlight = customtkinter.CTkFrame(master=window, width=520, height=510, fg_color='white')
+    frame_background_highlight.place(x=40, y=5)
 
-        self.IP = IP
+    frame = customtkinter.CTkFrame(master=window, width=500, height=500, fg_color='#515b66')
+    frame.place(x=50, y=10)
 
-        self.frame_background_highlight = customtkinter.CTkFrame(master=self, width=520, height=510, fg_color='white')
-        self.frame_background_highlight.place(x=40, y=5)
+    fpack = ("MS Serif", 20)
+    text = customtkinter.CTkTextbox(master=frame)
+    text.pack()
+    text.configure(font=fpack, fg_color='white', text_color='black', width=500, height=500)
+
+    check_Var = customtkinter.StringVar(value="off")
+
+    C4 = customtkinter.CTkCheckBox(window, hover_color='green', fg_color='green',border_color='white', text_color='white', checkmark_color='white', text="Save Results", command=lambda: [checkbox_event()], variable=check_Var, onvalue="on", offvalue="off")
+    C4.place(x=200, y=590)
+
+    # OS detection scan
+    C1 = customtkinter.CTkButton(window, hover_color='red', fg_color='green', text='OS Detection', command=lambda:[os_detect(IP_Entry.get())])
+    C1.place(x=50, y=550)
+
+    # DNS bruteforce
+    C2 = customtkinter.CTkButton(window, hover_color='red', fg_color='green', text='DNS bruteforce', command=lambda:[dns_brute(IP_Entry.get())])
+    C2.place(x=50, y=590)
         
-        self.frame = customtkinter.CTkFrame(master=self, width=500, height=500, fg_color='#515b66')
-        self.frame.place(x=50, y=10)
+    # UDP scan button
+    C3 = customtkinter.CTkButton(window, hover_color='red', fg_color='green', text="Version detection", command=lambda:[version_detc(IP_Entry.get())])
+    C3.place(x=200, y=550)
 
-        # Text box
-        fpack = ("MS Serif", 20)
-        self.text = customtkinter.CTkTextbox(master=self.frame,)
-        self.text.pack()
-        self.text.configure(font=fpack, fg_color='white', text_color='black', width=500, height=500)
-
-        # Save results checkbox value
-        self.check_Var = customtkinter.StringVar(value="off") # This will determine if it's been checked.
-        
-        # Check box
-        C4 = customtkinter.CTkCheckBox(self, hover_color='green', fg_color='green',border_color='white', text_color='white', checkmark_color='white', text="Save Results", command=lambda: [self.checkbox_event()], variable=self.check_Var, onvalue="on", offvalue="off")
-        C4.place(x=200, y=590)
-
-        # OS detection scan
-        C1 = customtkinter.CTkButton(self, hover_color='red', fg_color='green', text='OS Detection', command=lambda: [self.os_detec(str(self.IP))])
-        C1.place(x=50, y=550)
-        
-        # DNS bruteforce
-        C2 = customtkinter.CTkButton(self, hover_color='red', fg_color='green', text='DNS bruteforce', command=lambda: [self.dns_brute()])
-        C2.place(x=50, y=590)
-        
-        # UDP scan button [Replacing UDP with version detection scan]
-        C3 = customtkinter.CTkButton(self, hover_color='red', fg_color='green', text="Version detection", command=lambda: [self.version_detc(str(IP))])
-        C3.place(x=200, y=550)
-        
-        self.configure(fg_color='#515b66')
-        self.resizable(False, False)
-
-    def checkbox_event(self):
-        print('The checkbox has been clicked: ' + self.check_Var.get())
-
-    def version_detc(self, IP):
+    def checkbox_event():
+        print('The checkbox has been clicked: ' + check_Var.get())
+    
+    def version_detc(IP):
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
-        if self.check_Var.get() == 'on': 
+        if check_Var.get() == 'on': 
             output = ""
             for data in results[str(IP)]['ports']:
                 output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
-                self.text.insert("0.0", output)
-            self.save_json_data(IP, results, 'version_detection')
-        elif self.check_Var.get() == 'off':
+                text.insert("0.0", output)
+            save_json_data(IP, results, 'version_detection')
+        elif check_Var.get() == 'off':
             output = ""
             for data in results[str(IP)]['ports']:
                 output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
-            self.text.insert("0.0", output)
+            text.insert("0.0", output)
 
-    def os_detec(self, IP):
+    def os_detect(IP):
         print('OS Detect script running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_os_detection(IP)
-        if self.check_Var.get() == 'on':
+        if check_Var.get() == 'on':
             output = ""
-            for data in results[str(self.IP)]["osmatch"]:
+            for data in results[str(IP)]["osmatch"]:
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
-            self.text.insert("0.0", output)
-            self.save_json_data(IP, results, 'os_detection')
-        elif self.check_Var.get() == 'off':
+            text.insert("0.0", output)
+            save_json_data(IP, results, 'os_detection')
+        elif check_Var.get() == 'off':
             output = ""
-            for data in results[str(self.IP)]["osmatch"]:
+            for data in results[str(IP)]["osmatch"]:
                 print('Outputting to screen')
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
-            self.text.insert("0.0", output)
-    
-    def dns_brute(self):
+            text.insert("0.0", output)
+
+    def dns_brute():
         data = customtkinter.CTkInputDialog(text='Enter the domain name', title='Domain')
         target = data.get_input()
         nmap = nmap3.Nmap()
         results = nmap.nmap_dns_brute_script(target)
-        if self.check_Var.get() == 'on':
+        if check_Var.get() == 'on':
             output = ""
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
-            self.text.insert("0.0", output)
-            self.save_json_data(target, results, 'dns-bruteforce.json')
-        elif self.check_Var.get() == 'off':
+            text.insert("0.0", output)
+            save_json_data(target, results, 'dns-bruteforce.json')
+        elif check_Var.get() == 'off':
             output = ""
             print('Scanning without saving...')
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
-            self.text.insert("0.0", output)
+            text.insert("0.0", output)
 
-    def save_json_data(self, IP, data, scan_type):
+    def save_json_data(IP, data, scan_type):
         json_object = json.dumps(data, indent=4)
         print('Saving to file...')
         with open(str(IP) + scan_type + '.json', 'w') as f:
             f.write(json_object)
             f.close()
+
 # ------------------ Namp window ----------------- #
 
 
@@ -245,8 +236,8 @@ def display_shodan_map(IP):
             messagebox.showwarning('API Issue', message='Invalid API!!')
 
 # --------------- Functions for extra windows ---------------- #
-def nmap_window(): # Nmap window
-    P1 = Nwindow(IP_Entry.get())
+def nwindow(): # Nmap window
+    P1 = nmap_window(IP_Entry.get())
     P1.mainloop()
 T1 = threading.Thread(target=nmap_window, daemon=True)
 # ------------------------------- Main Window Bellow --------------------------------------------
