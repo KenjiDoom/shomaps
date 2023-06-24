@@ -165,28 +165,38 @@ async def fetch(session, url):
         return await response.json()
 
 async def cve_info(IP):
-    output = []
-    response_data = []
-    host = api.host(str(IP))
-    cve_names = [cve for cve in host['vulns'][0:5]] # Limit to only 5 searches (5 cves)
-    urls = ['http://api.cvesearch.com/search?q=' + item for item in cve_names]
-    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=None)) as session:
-        responses = await fetch_multiple(session, urls)
-        for response in responses: # this is being converted into a dict.
-            response_data = response
-            for cve in cve_names:
-                try:
-                    print(str(cve) + response_data['response'][str(cve).lower()]['basic']['description'] + '\n') 
-                    output.append(str(cve) + str(response_data['response'][str(cve).lower()]['basic']['description']) + '\n')
-                except KeyError:
-                    pass
-        # Add to frame here
-        cve_text = Text(Panel3_information, background='white')
-        cve_text.pack(fill="both", expand=True)
-        cve_text.insert(END, ''.join(output))
+    try:
+        output = []
+        response_data = []
+        host = api.host(str(IP))
+        cve_names = [cve for cve in host['vulns'][0:5]] # Limit to only 5 searches (5 cves)
+        urls = ['http://api.cvesearch.com/search?q=' + item for item in cve_names]
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=None)) as session:
+            responses = await fetch_multiple(session, urls)
+            for response in responses: # this is being converted into a dict.
+                response_data = response
+                for cve in cve_names:
+                    try:
+                        print(str(cve) + response_data['response'][str(cve).lower()]['basic']['description'] + '\n') 
+                        output.append(str(cve) + str(response_data['response'][str(cve).lower()]['basic']['description']) + '\n')
+                    except KeyError:
+                        pass
+            # Add to frame here
+            cve_text = Text(Panel3_information, background='white')
+            cve_text.pack(fill="both", expand=True)
+            cve_text.insert(END, ''.join(output))
+    except shodan.exception.APIError:
+        pass
 
 def shodan_search(IP):
     print('Shodan search running')
+    fpack = customtkinter.CTkFont(
+        family="Times",
+        size=20,
+        weight="bold",
+        slant="roman",
+        )
+
     try:
         host = api.host(IP)
         ip, banner, port, city, domains, asn, coordinates, coordinates2 = [],[],[],[],[],[],[],[]
@@ -201,16 +211,14 @@ def shodan_search(IP):
             coordinates2.append(items['location']['longitude'])
 
         for index, (a, b, c, d, e, f, g) in enumerate(zip(ip, port, city, domains, asn, coordinates, coordinates2)):
-            Label(master=Panel1_results, text=str(a)).place(x=10, y=20)
-            Label(master=Panel1_results, text=str(b)).place(x=10, y=60)
-            Label(master=Panel1_results, text=str(c)).place(x=10, y=100)
-            Label(master=Panel1_results, text=str(d)).place(x=10, y=150)
-            Label(master=Panel1_results, text=str(e)).place(x=10, y=200)
-            Label(master=Panel1_results, text=str(f)).place(x=10, y=250)
-            Label(master=Panel1_results, text=str(g)).place(x=10, y=300)
+            customtkinter.CTkLabel(master=Panel1_results, font=fpack, fg_color='green', text_color='white', text='IP: ' + str(a)).place(x=10, y=20)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='Port: ' + str(b)).place(x=10, y=60)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='City: ' + str(c)).place(x=10, y=100)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='Domains: ' + str(d)).place(x=10, y=150)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='ASN: ' + str(e)).place(x=10, y=200)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='coordinates: ' + str(f) + ' ' + str(g)).place(x=10, y=250)
     except shodan.exception.APIError:
-        print('Invalid API!')
-        messagebox.showwarning('API Issue', message='Invalid API!!')
+        pass
 
 def display_shodan_map(IP):
     print('Shodan Map Running')
