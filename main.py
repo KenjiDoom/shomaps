@@ -165,6 +165,12 @@ async def fetch(session, url):
         return await response.json()
 
 async def cve_info(IP):
+    fpack = customtkinter.CTkFont(
+        family="Times",
+        size=20,
+        weight="bold",
+        slant="roman",
+    )
     try:
         output = []
         response_data = []
@@ -187,6 +193,9 @@ async def cve_info(IP):
             cve_text.insert(END, ''.join(output))
     except shodan.exception.APIError:
         pass
+    except KeyError:
+        cve_label = customtkinter.CTkLabel(Panel3_information, font=fpack, text="CVE's not found...", text_color='white', fg_color='transparent')
+        cve_label.pack()
 
 def shodan_search(IP):
     print('Shodan search running')
@@ -211,12 +220,12 @@ def shodan_search(IP):
             coordinates2.append(items['location']['longitude'])
 
         for index, (a, b, c, d, e, f, g) in enumerate(zip(ip, port, city, domains, asn, coordinates, coordinates2)):
-            customtkinter.CTkLabel(master=Panel1_results, font=fpack, fg_color='green', text_color='white', text='IP: ' + str(a)).place(x=10, y=20)
-            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='Port: ' + str(b)).place(x=10, y=60)
-            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='City: ' + str(c)).place(x=10, y=100)
-            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='Domains: ' + str(d)).place(x=10, y=150)
-            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='ASN: ' + str(e)).place(x=10, y=200)
-            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='green', text_color='white', text='coordinates: ' + str(f) + ' ' + str(g)).place(x=10, y=250)
+            customtkinter.CTkLabel(master=Panel1_results, font=fpack, fg_color='transparent', text_color='white', text='IP: ' + str(a)).place(x=10, y=20)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='Port: ' + str(b)).place(x=10, y=60)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='City: ' + str(c)).place(x=10, y=100)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='Domains: ' + str(d)).place(x=10, y=150)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='ASN: ' + str(e)).place(x=10, y=200)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='coordinates: ' + str(f) + ' ' + str(g)).place(x=10, y=250)
     except shodan.exception.APIError:
         pass
 
