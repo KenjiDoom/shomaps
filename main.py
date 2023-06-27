@@ -67,7 +67,7 @@ def nmap_window():
     C1.place(x=50, y=550)
 
     # DNS bruteforce
-    C2 = customtkinter.CTkButton(window, hover_color='red', fg_color='green', text='DNS bruteforce', command=lambda:[dns_brute(IP_Entry.get())])
+    C2 = customtkinter.CTkButton(window, hover_color='red', fg_color='green', text='DNS bruteforce', command=lambda:[dns_brute()])
     C2.place(x=50, y=590)
         
     # UDP scan button
