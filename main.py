@@ -92,6 +92,23 @@ def nmap_window():
                 output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
             text.insert("0.0", output)
 
+    def version_detc(IP):
+        nmap = nmap3.Nmap()
+        results = nmap.nmap_version_detection(str(IP))
+        if check_Var.get() == 'on': 
+            output = ""
+            for data in results[str(IP)]['ports']:
+                output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
+            text.delete("0.0", "end")
+            text.insert("0.0", output)
+            save_json_data(IP, results, 'version_detection')
+        elif check_Var.get() == 'off':
+            output = ""
+            for data in results[str(IP)]['ports']:
+                output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
+            text.delete("0.0", "end")
+            text.insert("0.0", output)
+
     def os_detect(IP):
         print('OS Detect script running')
         nmap = nmap3.Nmap()
@@ -100,6 +117,7 @@ def nmap_window():
             output = ""
             for data in results[str(IP)]["osmatch"]:
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
+            text.delete("0.0", "end")
             text.insert("0.0", output)
             save_json_data(IP, results, 'os_detection')
         elif check_Var.get() == 'off':
@@ -107,6 +125,7 @@ def nmap_window():
             for data in results[str(IP)]["osmatch"]:
                 print('Outputting to screen')
                 output += data["name"] + ' ' + 'Accuracy:' + data["accuracy"] + '%' + '\n'
+            text.delete("0.0", "end")
             text.insert("0.0", output)
 
     def dns_brute():
@@ -118,6 +137,7 @@ def nmap_window():
             output = ""
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
+            text.delete("0.0", "end")
             text.insert("0.0", output)
             save_json_data(target, results, 'dns-bruteforce.json')
         elif check_Var.get() == 'off':
@@ -125,15 +145,8 @@ def nmap_window():
             print('Scanning without saving...')
             for data in results[0:10]:
                 output += data['hostname'] + '\n'
+            text.delete("0.0", "end")
             text.insert("0.0", output)
-
-    def save_json_data(IP, data, scan_type):
-        json_object = json.dumps(data, indent=4)
-        print('Saving to file...')
-        with open(str(IP) + scan_type + '.json', 'w') as f:
-            f.write(json_object)
-            f.close()
-
 # ------------------ Namp window ----------------- #
 
 # ------------------ Shodan Search Function ---------------------#
