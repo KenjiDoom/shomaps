@@ -136,22 +136,26 @@ def nmap_window():
 
 # ------------------ Namp window ----------------- #
 
-
 # ------------------ Shodan Search Function ---------------------#
 
 def loading_bar(IP):
-    progress = customtkinter.CTkProgressBar(root, mode="determinate", orientation="horizontal", progress_color='green', fg_color='white', width=120)
+    style = Style()
+    style.theme_use('alt')
+    style.configure("Horizontal.TProgressbar", troughcolor ='green', background='white')
+    progress = Progressbar(root, mode="determinate", style="Horizontal.TProgressbar", orient="horizontal", length=120)
     progress.place(x=830, y=765)
-    progress['value'] = 50
+    progress['value'] = 25
     progress.update_idletasks()
-    time.sleep(1)
     P10 = Process(target=shodan_search(IP))
     P10.start()
+    P11 = Process(target=display_shodan_map(IP))
+    P11.start()
     loop = asyncio.new_event_loop()
-    loop.run_until_complete(cve_info(IP))
+    progress['value'] = 50
+    progress.update_idletasks()
+    loop.run_until_complete(cve_info(IP)) 
     progress['value'] = 100
-    progress.update_idletasks
-    time.sleep(1)
+    progress.update_idletasks()
 
 async def fetch_multiple(session, urls):
     print('Fetch Multiple is running')
@@ -285,7 +289,7 @@ IP_Entry = Entry(master=root, text="Enter IP Address", width=30)
 IP_Entry.place(x=540, y=775, anchor='center')
 
 # Search button
-search_button = customtkinter.CTkButton(master=root, hover_color='red', fg_color='green', text='Shodan Search', command=lambda:[loading_bar(IP_Entry.get()), display_shodan_map(IP_Entry.get())])
+search_button = customtkinter.CTkButton(master=root, hover_color='red', fg_color='green', text='Shodan Search', command=lambda:[loading_bar(IP_Entry.get())])
 search_button.place(x=750, y=775, anchor='center')
 
 # Namp scan button
