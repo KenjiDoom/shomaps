@@ -84,21 +84,6 @@ def nmap_window():
             output = ""
             for data in results[str(IP)]['ports']:
                 output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
-                text.insert("0.0", output)
-            save_json_data(IP, results, 'version_detection')
-        elif check_Var.get() == 'off':
-            output = ""
-            for data in results[str(IP)]['ports']:
-                output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
-            text.insert("0.0", output)
-
-    def version_detc(IP):
-        nmap = nmap3.Nmap()
-        results = nmap.nmap_version_detection(str(IP))
-        if check_Var.get() == 'on': 
-            output = ""
-            for data in results[str(IP)]['ports']:
-                output += data['portid'] + ' ' + data['state'] + ' ' + data['service']['name'] + '\n'
             text.delete("0.0", "end")
             text.insert("0.0", output)
             save_json_data(IP, results, 'version_detection')
