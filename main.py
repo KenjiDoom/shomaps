@@ -114,8 +114,7 @@ def nmap_window():
             text.insert("0.0", output)
 
     def dns_brute():
-        data = customtkinter.CTkInputDialog(text='Enter the domain name', title='Domain')
-        target = data.get_input()
+        target = simpledialog.askstring(prompt='Enter the domain name', title='Domain')
         nmap = nmap3.Nmap()
         results = nmap.nmap_dns_brute_script(target)
         if check_Var.get() == 'on':
@@ -190,14 +189,14 @@ async def cve_info(IP):
                     except KeyError:
                         pass
             # Add to frame here
-            cve_text = Text(Panel3_information, background='white')
-            cve_text.pack(fill="both", expand=True)
+            cve_text.delete("1.0", END)
             cve_text.insert(END, ''.join(output))
     except shodan.exception.APIError:
         pass
     except KeyError:
-        cve_label = customtkinter.CTkLabel(Panel3_information, font=fpack, text="CVE's not found...", text_color='white', fg_color='transparent')
-        cve_label.pack()
+        # This method doesn't work
+        cve_text.delete("1.0", END)
+        cve_text.insert(END, "CVE's not found...")
 
 def shodan_search(IP):
     print('Shodan search running')
@@ -254,11 +253,6 @@ def display_shodan_map(IP):
             print('You must enter an API key!')
             messagebox.showwarning('API Issue', message='Invalid API!!')
 
-# --------------- Functions for extra windows ---------------- #
-def nwindow(): # Nmap window
-    P1 = nmap_window(IP_Entry.get())
-    P1.mainloop()
-T1 = threading.Thread(target=nmap_window, daemon=True)
 # ------------------------------- Main Window Bellow --------------------------------------------
 
 root = Tk()
@@ -282,6 +276,10 @@ Panel3_information = LabelFrame(pg_windows, font=fpack, text="More Information",
 pg_windows.add(Panel3_information, weight=50)
 pg_windows.pack(side=BOTTOM, fill='x', expand=False)
 
+# Text box for CVE Info
+cve_text = Text(Panel3_information, background='white')
+cve_text.pack(fill="both", expand=True)
+
 # Entry box
 IP_Entry = Entry(master=root, text="Enter IP Address", width=30)
 IP_Entry.place(x=540, y=775, anchor='center')
@@ -291,7 +289,7 @@ search_button = customtkinter.CTkButton(master=root, hover_color='red', fg_color
 search_button.place(x=750, y=775, anchor='center')
 
 # Namp scan button
-scan_nmap = customtkinter.CTkButton(master=root, hover_color='red', fg_color='green', text='Perform Nmap Scan', command=lambda:[T1.start()])
+scan_nmap = customtkinter.CTkButton(master=root, hover_color='red', fg_color='green', text='Perform Nmap Scan', command=lambda:[nmap_window()])
 scan_nmap.place(x=250, y=760)
 
 def close_window():
