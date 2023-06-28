@@ -78,6 +78,7 @@ def nmap_window():
         print('The checkbox has been clicked: ' + check_Var.get())
     
     def version_detc(IP):
+        print('Version detection is running')
         nmap = nmap3.Nmap()
         results = nmap.nmap_version_detection(str(IP))
         if check_Var.get() == 'on': 
@@ -131,6 +132,14 @@ def nmap_window():
                 output += data['hostname'] + '\n'
             text.delete("0.0", "end")
             text.insert("0.0", output)
+
+    def save_json_data(IP, data, scan_type):
+        json_object = json.dumps(data, indent=4)
+        print('Saving to file...')
+        with open(str(IP) + scan_type + '.json', 'w') as f:
+            f.write(json_object)
+            print('Done.')
+            f.close()
 # ------------------ Namp window ----------------- #
 
 # ------------------ Shodan Search Function ---------------------#
