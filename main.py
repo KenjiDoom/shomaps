@@ -222,7 +222,7 @@ def shodan_search(IP):
             coordinates.append(items['location']['latitude'])
             coordinates2.append(items['location']['longitude'])
     
-        customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='Ports ' + ', '.join(map(str, port))).place(x=10, y=60)
+        ports_label.configure(text='Ports ' + ', '.join(map(str, port)))
         for index, (a, b, c, d, e, f, g, h, i) in enumerate(zip(ip, port, city, domains, asn, coordinates, coordinates2, organization, isp)):
             customtkinter.CTkLabel(master=Panel1_results, font=fpack, fg_color='transparent', text_color='white', text='IP: ' + str(a)).place(x=10, y=20)
             customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='City: ' + str(c)).place(x=10, y=100)
@@ -262,7 +262,12 @@ def display_shodan_map(IP):
 root = Tk()
 root.geometry("1000x800")
 root.title("Shomaps")
-fpack = ("MS Serif", 20)
+fpack = customtkinter.CTkFont(
+    family="Times",
+    size=20,
+    weight="bold",
+    slant="roman",
+    )
 
 # Framed windows
 pw_windows = Panedwindow(root, orient='horizontal')
@@ -279,6 +284,10 @@ pg_windows = Panedwindow(root, orient='vertical')
 Panel3_information = LabelFrame(pg_windows, font=fpack, text="More Information", relief='flat', foreground='#62ff00', background='#515b66', height=350)
 pg_windows.add(Panel3_information, weight=50)
 pg_windows.pack(side=BOTTOM, fill='x', expand=False)
+
+# Label for ports
+ports_label = customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='')
+ports_label.place(x=10, y=60)
 
 # Text box for CVE Info
 cve_text = Text(Panel3_information, background='white')
