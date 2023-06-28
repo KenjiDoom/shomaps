@@ -217,16 +217,20 @@ def shodan_search(IP):
             city.append(host.get('city', 'n/a'))
             domains.append(host.get('domain', 'n/a'))
             asn.append(items['asn'])
+            organization = items['org']
+            isp = items['isp']
             coordinates.append(items['location']['latitude'])
             coordinates2.append(items['location']['longitude'])
-
-        for index, (a, b, c, d, e, f, g) in enumerate(zip(ip, port, city, domains, asn, coordinates, coordinates2)):
+    
+        customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='Ports ' + ', '.join(map(str, port))).place(x=10, y=60)
+        for index, (a, b, c, d, e, f, g, h, i) in enumerate(zip(ip, port, city, domains, asn, coordinates, coordinates2, organization, isp)):
             customtkinter.CTkLabel(master=Panel1_results, font=fpack, fg_color='transparent', text_color='white', text='IP: ' + str(a)).place(x=10, y=20)
-            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='Port: ' + str(b)).place(x=10, y=60)
             customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='City: ' + str(c)).place(x=10, y=100)
             customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='Domains: ' + str(d)).place(x=10, y=150)
             customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='ASN: ' + str(e)).place(x=10, y=200)
-            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='coordinates: ' + str(f) + ' ' + str(g)).place(x=10, y=250)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='ORG: ' + str(organization)).place(x=10, y=250)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='ISP: ' + str(isp)).place(x=10, y=300)
+            customtkinter.CTkLabel(master=Panel1_results,  font=fpack, fg_color='transparent', text_color='white', text='coordinates: ' + str(f) + ' ' + str(g)).place(x=10, y=350)
     except shodan.exception.APIError:
         pass
 
