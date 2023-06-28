@@ -300,7 +300,7 @@ ports_label.place(x=10, y=60)
 
 # Text box for CVE Info
 cve_text = Text(Panel3_information, background='white')
-cve_text.pack(fill="both", expand=True)
+cve_text.place(x=0, y=0, width=1000, height=280)
 
 # Entry box
 IP_Entry = Entry(master=root, text="Enter IP Address", width=30)
